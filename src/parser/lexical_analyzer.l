@@ -58,5 +58,31 @@ letter [a-zA-Z]
 {letter+}  {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return IDENTIFIER}
 {digit+}   {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return INTEGER}
 {(digit+. | digit*.digit+)} {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return FLOATPOINT}
+"/*"         { BEGIN(COMMENT); }   /* 进入 COMMENT 状态 */
+
+<COMMENT>[^*]*\*+([^/*][^*]*\*+)*"/" {
+                BEGIN(INITIAL);    /* 匹配结束注释，返回初始状态 */
+              }
+
+<COMMENT>     /* 忽略 COMMENT 状态下的所有字符 */
+
+"//".* {
+    /* 匹配单行注释 */
+    pos_start = pos_end;
+    pos_end += yyleng;
+}
+
+/* 空白字符：忽略空格、制表符和换行符 */
+[ \t\n\r]+ {
+    pos_start = pos_end;
+    pos_end += yyleng;
+}
+
+/* 未知字符处理 */
+. { 
+    pos_start = pos_end; 
+    pos_end++; 
+    return ERROR; 
+}
  /****请在此补全所有flex的模式与动作  end******/
 %%
