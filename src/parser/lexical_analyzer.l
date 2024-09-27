@@ -20,8 +20,7 @@ void pass_node(char *text){
 %}
 
 %x COMMENT
-digit [0-9]
-letter [a-zA-Z]
+letter [a-zA-Z][a-zA-Z]*
 
 %%
  /* to do for students */
@@ -52,9 +51,10 @@ letter [a-zA-Z]
 "return"   {pos_start = pos_end; pos_end += 6; pass_node(yytext); return RETURN;}
 "int"      {pos_start = pos_end; pos_end += 3; pass_node(yytext); return INT;}
 "void"     {pos_start = pos_end; pos_end += 4; pass_node(yytext); return VOID;}
-(letter+)  {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return IDENTIFIER;}
-(digit+)   {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return INTEGER;}
-(digit+\.|digit*\.digit+)  {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return FLOATPOINT;}
+"float"     {pos_start = pos_end; pos_end += 4; pass_node(yytext); return FLOAT;}
+{letter}  {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return IDENTIFIER;}
+[0-9]+   {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return INTEGER;}
+([0-9]+\.)|([0-9]*\.[0-9]+)  {pos_start=pos_end;pos_end += yyleng; pass_node(yytext); return FLOATPOINT;}
 "/*"         { BEGIN(COMMENT); }   /* 进入 COMMENT 状态 */
 <COMMENT>[^*]*\*+([^/*][^*]*\*+)*"/" {
                 BEGIN(INITIAL);    /* 匹配结束注释，返回初始状态 */
@@ -69,11 +69,15 @@ letter [a-zA-Z]
 }
 
 
-[" "\t\n\r]+  {
+[ \t\r]+  {
     pos_start = pos_end;
     pos_end += yyleng;
 }
-
+"\n" {
+    lines++;
+    pos_start = pos_end;
+    pos_end += yyleng;
+}
 "."        { pos_start = pos_end; pos_end++; return ERROR; }
  /****请在此补全所有flex的模式与动作  end******/
 %%
