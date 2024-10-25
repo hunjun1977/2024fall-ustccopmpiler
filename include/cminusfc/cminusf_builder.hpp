@@ -109,5 +109,16 @@ class CminusfBuilder : public ASTVisitor {
         // function that is being built
         Function *func = nullptr;
         // TODO: you should add more fields to store state
+        // Function that is being built
+        BasicBlock *currentBlock = nullptr;
+        Scope *currentScope = nullptr;
+        std::vector<Type *> paramTypes;
+        std::vector<Instruction *> instructions;
+        Type *returnType = nullptr;
+        bool inFunctionBody = false;
+        int arrayindex=0;
+        int selectionnum=0;
+
+    // 其他需要的状态字段...
     } context;
 };
