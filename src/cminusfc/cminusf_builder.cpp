@@ -1,10 +1,16 @@
 #include "cminusf_builder.hpp"
 #include "BasicBlock.hpp"
 #include "Function.hpp"
+#include "Instruction.hpp"
+#include "Type.hpp"
 #include "Value.hpp"
 #include "ast.hpp"
+#include <cassert>
 #include <cstdio>
+#include <iostream>
 #include <string>
+#include <type_traits>
+#include "logging.hpp"
 
 #define CONST_FP(num) ConstantFP::get((float)num, module.get())
 #define CONST_INT(num) ConstantInt::get(num, module.get())
@@ -165,6 +171,7 @@ Value *CminusfBuilder::visit(ASTVarDeclaration &node) {
 }
 
 Value *CminusfBuilder::visit(ASTFunDeclaration &node) {
+    //LOG(DEBUG)<<"enter fundeclaration";
     FunctionType *fun_type;
     Type *ret_type;
     std::vector<Type *> param_types;
@@ -177,9 +184,16 @@ Value *CminusfBuilder::visit(ASTFunDeclaration &node) {
 
     for (auto &param : node.params) {
         // TODO: Please accomplish param_types.
+        if(param->isarray){
+            Type *param_type=PointerType::get((param->type == TYPE_INT) ? INT32_T : FLOAT_T);
+            param_types.push_back(param_type);
+        }
+        else{
         Type *param_type = (param->type == TYPE_INT) ? INT32_T : FLOAT_T;
-        param_types.push_back(param_type);
+            param_types.push_back(param_type);
+        }
     }
+        
 
     fun_type = FunctionType::get(ret_type, param_types);
     auto func = Function::create(fun_type, node.id, module.get());
@@ -193,12 +207,33 @@ Value *CminusfBuilder::visit(ASTFunDeclaration &node) {
     for (auto &arg : func->get_args()) {
         args.push_back(&arg);
     }
-    for (auto &param : node.params) {
-        // TODO: You need to deal with params and store them in the scope.
+    for (auto param : node.params){
         param->accept(*this);
     }
+    int i = 0;
+    for (auto param : node.params) //将参数store下来
+    {
+        if(param->isarray){
+            scope.push(param->id,args[i++]);
+        }
+        else{
+        auto pAlloca = scope.find(param->id);
+        std::cout<<pAlloca->print()<<std::endl;
+        std::cout<<args[i]->print()<<std::endl;
+        std::cout<<args[i]->get_type()->print()<<std::endl;
+        std::cout<<param->id<<std::endl;
+        if (pAlloca == nullptr){
+            i++;
+        }        
+        else{
+            auto temp=builder->create_store(args[i++], pAlloca);
+            std::cout<<temp->print()<<std::endl;
+        }
+        }
+    }
+    
     node.compound_stmt->accept(*this);
-    if (builder->get_insert_block()->get_terminator() == nullptr) {
+    if (!builder->get_insert_block()->is_terminated()) {
         if (context.func->get_return_type()->is_void_type())
             builder->create_void_ret();
         else if (context.func->get_return_type()->is_float_type())
@@ -207,6 +242,7 @@ Value *CminusfBuilder::visit(ASTFunDeclaration &node) {
             builder->create_ret(CONST_INT(0));
     }
     scope.exit();
+    //LOG(DEBUG)<<"exit fundeclaration";
     return nullptr;
 }
 
@@ -214,15 +250,14 @@ Value *CminusfBuilder::visit(ASTParam &node) {
     // TODO: This function is empty now.
     // Add some code here.
     Value *param_value = nullptr;
-    // 确定参数类型并分配内存
     if (node.isarray) {
-        // 为数组参数分配指向数组类型的指针
-        param_value = builder->create_alloca(
-            PointerType::get(node.type == TYPE_INT ? INT32_T : FLOAT_T));
+        //scope.push(node.id, param_value);
+        return nullptr;
     } else {
         // 为普通参数分配相应的内存
         param_value =
             builder->create_alloca(node.type == TYPE_INT ? INT32_T : FLOAT_T);
+        std::cout<<param_value->get_type()->print()<<std::endl;
     }
 
     // 存储参数到作用域
@@ -359,7 +394,7 @@ Value *CminusfBuilder::visit(ASTIterationStmt &node) {
 }
 
 Value *CminusfBuilder::visit(ASTReturnStmt &node) {
-    printf("returnstmt");
+    printf("returnstmt\n");
     if (node.expression == nullptr) {
         builder->create_void_ret();
         return nullptr;
@@ -367,12 +402,25 @@ Value *CminusfBuilder::visit(ASTReturnStmt &node) {
         // TODO: The given code is incomplete.
         // You need to solve other return cases (e.g. return an integer).
         auto temp = node.expression->accept(*this);
-        if (temp->get_type()->is_float_type()) {
+        if(context.func->get_return_type()==INT32_T){
+            if (temp->get_type()->is_float_type()) {
+            //auto loadedValue = builder->create_load(temp); // 加载浮点值
+            auto temp0=builder->create_fptosi(temp,INT32_T);
+            builder->create_ret(temp0);
+            }else {
             //auto loadedValue = builder->create_load(temp); // 加载浮点值
             builder->create_ret(temp);
-        } else {
+            }
+        } 
+        else {
+            if (temp->get_type()->is_float_type()) {
             //auto loadedValue = builder->create_load(temp); // 加载浮点值
             builder->create_ret(temp);
+            }else {
+            //auto loadedValue = builder->create_load(temp); // 加载浮点值
+                auto temp0=builder->create_sitofp(temp,FLOAT_T);
+                builder->create_ret(temp0);
+            }
         }
     }
     return nullptr;
@@ -386,6 +434,7 @@ Value *CminusfBuilder::visit(ASTVar &node) {
     if (var) {
         if (node.expression != nullptr) { // 处理数组索引
             // 处理表达式以获取索引
+            //std::cout<<var->get_type()->print()<<std::endl;
             context.arrayindex++;
             Value *index = node.expression->accept(*this);
             // 确保索引类型正确
@@ -421,11 +470,20 @@ Value *CminusfBuilder::visit(ASTVar &node) {
             builder->create_br(endBB);
             // 结束块
             builder->set_insert_point(endBB);
-             Value *varAddr = builder->create_gep(
+            if(var->get_type()->get_pointer_element_type()->is_array_type()){
+            Value *varAddr = builder->create_gep(
                 var, {CONST_INT(0), index});     // 获取数组元素地址
             //builder->create_br(context.currentBlock);
             //builder->set_insert_point(temp);
+            return varAddr;}
+            else if(var->get_type()->is_pointer_type()){
+                Value *varAddr = builder->create_gep(
+                var, { index});     // 获取数组元素地址
+            //builder->create_br(context.currentBlock);
+            //builder->set_insert_point(temp);
             return varAddr;
+            }
+
         } else {
             // 处理普通变量
             return var;
@@ -447,7 +505,7 @@ Value *CminusfBuilder::visit(ASTAssignExpression &node) {
     // 访问变量和表达式
     //Value* var = scope.find(node.var->id);
     Value* var=node.var->accept(*this);
-    //std::cout << "Finding variable: " << var->print() << std::endl;
+    //std::cout << var->get_type()->print() << std::endl;
     Value *ret = node.expression.get()->accept(*this); // 访问表达式
     // 处理指向 float 型的情况
     if (var->get_type()->get_pointer_element_type()->is_float_type()) {
@@ -467,8 +525,8 @@ Value *CminusfBuilder::visit(ASTAssignExpression &node) {
             ret = builder->create_sitofp(ret, FLOAT_T); // 转为浮点型
         }
         Value* storeinst=builder->create_store(ret, var);
-        return storeinst;
-        //return ret;
+        //return storeinst;
+        return ret;
         //return builder->create_load(storeinst); // 存储结果
     } else {                             // 处理指向 int 型的情况
         if (ret->get_type()->is_pointer_type()) {
@@ -490,7 +548,7 @@ Value *CminusfBuilder::visit(ASTAssignExpression &node) {
         Value* storeinst=builder->create_store(ret, var);
         //return ret;
         //return builder->create_load(storeinst); // 存储结果
-        return storeinst;
+        return ret;
     }
     return nullptr;
 }
@@ -585,7 +643,7 @@ Value *CminusfBuilder::visit(ASTAdditiveExpression &node) {
     // TODO: This function is empty now.
     // Add some code here.
     // 访问递归的左侧表达式（如果存在）
-    std::cout << "deal with additiveexpression" << std::endl;
+    //std::cout << "deal with additiveexpression" << std::endl;
     Value *lhs = nullptr;
     if (node.additive_expression) {
         lhs = node.additive_expression->accept(*this);
@@ -613,6 +671,9 @@ Value *CminusfBuilder::visit(ASTAdditiveExpression &node) {
             return builder->create_fsub(lhs, rhs);
         }
     } else {
+        std::cout<<lhs->print()<<std::endl;
+        std::cout<<rhs->print()<<std::endl;
+        std::cout<<rhs->get_type()->print()<<std::endl;
         // 否则，执行整数加法或减法
         if (node.op == OP_PLUS) {
             return builder->create_iadd(lhs, rhs);
@@ -626,7 +687,7 @@ Value *CminusfBuilder::visit(ASTAdditiveExpression &node) {
 Value *CminusfBuilder::visit(ASTTerm &node) {
     // TODO: This function is empty now.
     // Add some code here.
-    std::cout << "deal with term" << std::endl;
+    //std::cout << "deal with term" << std::endl;
     Value *lhs_value;
     Value *rhs_value;
 
@@ -634,10 +695,18 @@ Value *CminusfBuilder::visit(ASTTerm &node) {
     if (!node.term) {
         //std::cout<<node.factor->accept(*this)->get_type()->print()<<std::endl;
         auto temp=node.factor->accept(*this);
+        //std::cout<<temp->print()<<std::endl;
+        if(!context.inCall){
         if(temp->get_type()->is_pointer_type()){//如果指向变量指针
+            if(temp->get_type()->get_pointer_element_type()->is_array_type()){
+            return temp;
+        }
         return builder->create_load(temp);
         }
-        return temp;
+        return temp;}
+        else{
+            return temp;
+        }
     }
 
     // 处理 term -> term mulop factor 的情况
@@ -682,7 +751,8 @@ Value *CminusfBuilder::visit(ASTTerm &node) {
 Value *CminusfBuilder::visit(ASTCall &node) {
     // TODO: This function is empty now.
     // Add some code here.
-    printf("deal with call\n");
+    //printf("deal with call\n");
+    
     Value *value;
     value = scope.find(node.id); // 调用scope.find()找ID对应的值
     if (value == nullptr)        // 是不是函数名
@@ -699,8 +769,14 @@ Value *CminusfBuilder::visit(ASTCall &node) {
     for (size_t i = 0; i < node.args.size(); ++i) {
         auto &arg = node.args[i];
         auto arg_type = callfun->get_param_type(i);
-        // 先获取参数的值
+        if (arg_type->is_pointer_type()) {
+            context.inCall=true;
+        }
+        // 判断是否为指针，如不是则获取参数的值
+        std::cout<<arg_type->print()<<std::endl;
         Value *ret = arg->accept(*this);
+        std::cout<<ret->print()<<std::endl;
+        std::cout<<ret->get_type()->print()<<std::endl;
         //printf("test");
         // 如果返回值是布尔型，先将其转换为32位整型
         if (callfun->get_return_type() == INT1_T) {
@@ -727,6 +803,7 @@ Value *CminusfBuilder::visit(ASTCall &node) {
             if (ret->get_type()->is_pointer_type()) {
                 // 如果是指针类型，首先加载
                 ret = builder->create_load(ret);
+                }
                 // 加载后检查类型
                 if (ret->get_type() == INT32_T) {
                     ret = builder->create_sitofp(ret,
@@ -737,23 +814,27 @@ Value *CminusfBuilder::visit(ASTCall &node) {
                     ret = builder->create_sitofp(ret,
                                                  FLOAT_T); // 然后转换为浮点型
                 }
+        } 
+        else if (arg_type->is_pointer_type()) {
+            if(ret->get_type()->is_pointer_type()){
+            //如果是数组传入数组的第一个元素的指针
+            if(ret->get_type()->get_pointer_element_type()->is_array_type()){
+                std::cout<<ret->get_type()->print()<<std::endl;
+                ret=builder->create_gep(ret,{CONST_INT(0),CONST_INT(0)});}
+            else{
+                ret=builder->create_gep(ret,{CONST_INT(0)});
             }
-        } else if (ret->get_type() == INT32_T) {
-            ret = builder->create_sitofp(ret, FLOAT_T); // 整型转换为浮点型
-        } else if (ret->get_type() == INT1_T) {
-            // 处理 INT1_T 类型
-            ret = builder->create_zext(ret, INT32_T);
-            ret = builder->create_sitofp(ret, FLOAT_T); // 然后转换为浮点型
-        } else if (arg_type->is_pointer_type()) {
-            //
+            }
         } else {
             // 处理未预见的类型
             printf("Unsupported parameter type\n");
             return nullptr;
         }
         args.push_back(ret); // 将处理后的值加入参数列表
+        context.inCall=false;
     }
 
     // 创建函数调用
+    std::cout<<"calldone"<<std::endl;
     return builder->create_call(value, args);
 }

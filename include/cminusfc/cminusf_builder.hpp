@@ -116,6 +116,7 @@ class CminusfBuilder : public ASTVisitor {
         std::vector<Instruction *> instructions;
         Type *returnType = nullptr;
         bool inFunctionBody = false;
+        bool inCall=false;
         int arrayindex=0;
         int selectionnum=0;
 
