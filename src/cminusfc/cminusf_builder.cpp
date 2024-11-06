@@ -279,6 +279,8 @@ Value *CminusfBuilder::visit(ASTCompoundStmt &node) {
     }
     for (auto &stmt : node.statement_list) {
         stmt->accept(*this);
+        if (builder->get_insert_block()->get_terminator() == nullptr)
+            break;
     }
     scope.exit();
     return nullptr;
