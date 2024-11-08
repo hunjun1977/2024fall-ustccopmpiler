@@ -67,10 +67,11 @@ void translate_main(CodeGen *codegen) {
     codegen->append_inst("ld.d",
                          {"$t0", "$fp", std::to_string(offset_map["%op0"])});
     // TODO: 将 0x4048f5c3 加载到通用寄存器或者浮点寄存器中
-    codegen->append_inst("lui32.d $ft0,0x4048f5c3");
+    codegen->append_inst("lu12i.w $t0,0x4048f");
+    codegen->append_inst("addi.d $t2,$t0,0x5c3");
     // TODO: 将通用寄存器或者浮点寄存器中的值写入 %op0 对应的内存空间中
     codegen->append_inst("ld.d",{"$t0","$fp",std::to_string(offset_map["%op0"])});
-    codegen->append_inst("st.d $ft0,$t0,0");
+    codegen->append_inst("st.d $t2,$t0,0");
     /* %op1 = load float, float* %op0 */
     codegen->append_inst("%op1 = load float, float* %op0",
                          ASMInstruction::Comment);
@@ -78,16 +79,18 @@ void translate_main(CodeGen *codegen) {
     // %op1 对应的内存空间中
     offset_map["%op1"] =-40 ; // TODO: 请填空
     codegen->append_inst("ld.d",{"$t0","$fp",std::to_string(offset_map["%op0"])});
-    codegen->append_inst("ld.d $ft0,$t0,0");
-    codegen->append_inst("st.d",{"$ft0","$fp",std::to_string(offset_map["%op1"])});
+    codegen->append_inst("ld.d $t1,$t0,0");
+    codegen->append_inst("st.d",{"$t1","$fp",std::to_string(offset_map["%op1"])});
 
     /* %op2 = fptosi float %op1 to i32 */
     codegen->append_inst("%op2 = fptosi float %op1 to i32",
                          ASMInstruction::Comment);
     // TODO: 使用 ftintrz.w.s 指令进行转换, 并将结果写入 %op2 对应的内存空间中
     offset_map["%op2"] =-44; // TODO: 请填空
+    codegen->append_inst("fld.d",{"$ft0","$fp",std::to_string(offset_map["%op1"])});
     codegen->append_inst("ftintrz.w.s $ft1,$ft0");
-    codegen->append_inst("st.w",{"$ft1","$fp",std::to_string(offset_map["%op2"])});
+    codegen->append_inst("movfr2gr.s $t0, $ft1");
+    codegen->append_inst("st.w",{"$t0","$fp",std::to_string(offset_map["%op2"])});
     /* ret i32 %op2 */
     codegen->append_inst("ret i32 %op2", ASMInstruction::Comment);
     // TODO: 将 %op2 的值写入 $a0 中

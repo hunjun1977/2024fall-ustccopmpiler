@@ -97,8 +97,8 @@ void translate_main(CodeGen *codegen) {
                          ASMInstruction::Comment);
     // TODO: 获得 %op2 的值, 并根据 %op2 的值跳转到 label3 或者 label4
     // 提示: 汇编中对应的标签分别为 .main_label3 和 .main_label4
-    codegen->append_inst("ld.b",{"$fcc0","$fp",std::to_string(offset_map["%op2"])});
-    codegen->append_inst("bcnez $fcc0 .main_label3");
+    codegen->append_inst("ld.w",{"$t0","$fp",std::to_string(offset_map["%op2"])});
+    codegen->append_inst("bnez $t0,.main_label3");
     codegen->append_inst("b .main_label4");
     /* label3: */
     codegen->append_inst(".main_label3", ASMInstruction::Label);
