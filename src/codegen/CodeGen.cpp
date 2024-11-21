@@ -241,6 +241,9 @@ void CodeGen::gen_ret() {
             load_to_greg(returnValue, Reg::a(0));
         }
     }
+    else if(retInst->get_num_operand()==0){
+        append_inst("add.w $a0,$zero,$zero");
+    }
     gen_epilogue();
     //throw not_implemented_error{__FUNCTION__};
 }
