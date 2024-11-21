@@ -1,6 +1,10 @@
 #include "CodeGen.hpp"
 
 #include "CodeGenUtil.hpp"
+#include "Constant.hpp"
+#include "Value.hpp"
+#include <vector>
+#include <queue>
 
 void CodeGen::allocate() {
     // 备份 $ra $fp
@@ -216,20 +220,42 @@ void CodeGen::gen_prologue() {
 
 void CodeGen::gen_epilogue() {
     // TODO 根据你的理解设定函数的 epilogue
-    throw not_implemented_error{__FUNCTION__};
+    // 恢复帧指针和返回地址
+    //先释放栈帧空间
+    append_inst("addi.d $sp, $sp, " + std::to_string(static_cast<int>(context.frame_size)));
+    append_inst("ld.d $ra, $sp, -8");
+    append_inst("ld.d $fp, $sp, -16");
+    append_inst("jr $ra");
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 
 void CodeGen::gen_ret() {
     // TODO 函数返回，思考如何处理返回值、寄存器备份，如何返回调用者地址
-    throw not_implemented_error{__FUNCTION__};
+    auto *retInst = static_cast<ReturnInst *>(context.inst);
+    if (retInst->get_num_operand() > 0) {
+        auto *returnValue = retInst->get_operand(0);
+        if (returnValue->get_type()->is_float_type()) {
+            load_to_freg(returnValue, FReg::fa(0));
+        } else {
+            load_to_greg(returnValue, Reg::a(0));
+        }
+    }
+    gen_epilogue();
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 void CodeGen::gen_br() {
     auto *branchInst = static_cast<BranchInst *>(context.inst);
     if (branchInst->is_cond_br()) {
         // TODO 补全条件跳转的情况
-        throw not_implemented_error{__FUNCTION__};
+        auto *cond = branchInst->get_operand(0);
+        auto *trueBB = static_cast<BasicBlock *>(branchInst->get_operand(1));
+        auto *falseBB = static_cast<BasicBlock *>(branchInst->get_operand(2));
+        load_to_greg(cond, Reg::t(0));
+        append_inst("bnez " + Reg::t(0).print() + ", " + label_name(trueBB));
+        append_inst("b " + label_name(falseBB));
+        //throw not_implemented_error{__FUNCTION__};
     } else {
         auto *branchbb = static_cast<BasicBlock *>(branchInst->get_operand(0));
         append_inst("b " + label_name(branchbb));
@@ -260,7 +286,26 @@ void CodeGen::gen_binary() {
 
 void CodeGen::gen_float_binary() {
     // TODO 浮点类型的二元指令
-    throw not_implemented_error{__FUNCTION__};
+    load_to_freg(context.inst->get_operand(0), FReg::ft(0));
+    load_to_freg(context.inst->get_operand(1), FReg::ft(1));
+    switch (context.inst->get_instr_type()) {
+    case Instruction::fadd:
+        append_inst("fadd.s $ft2, $ft0, $ft1");
+        break;
+    case Instruction::fsub:
+        append_inst("fsub.s $ft2, $ft0, $ft1");
+        break;
+    case Instruction::fmul:
+        append_inst("fmul.s $ft2, $ft0, $ft1");
+        break;
+    case Instruction::fdiv:
+        append_inst("fdiv.s $ft2, $ft0, $ft1");
+        break;
+    default:
+        assert(false);
+    }
+    store_from_freg(context.inst, FReg::ft(2));
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 void CodeGen::gen_alloca() {
@@ -268,47 +313,241 @@ void CodeGen::gen_alloca() {
      * 指令自身产生的定值，即指向 alloca 空间起始地址的指针
      */
     // TODO 将 alloca 出空间的起始地址保存在栈帧上
-    throw not_implemented_error{__FUNCTION__};
+    auto *allocaInst = static_cast<AllocaInst *>(context.inst);
+    auto offset = context.offset_map[allocaInst];
+    int alloc_size = allocaInst->get_alloca_type()->get_size();
+    auto reg = Reg::t(0);
+    if (IS_IMM_12(offset-alloc_size)) {
+        append_inst("addi.d " + reg.print() + ", $fp, " + std::to_string(offset-alloc_size));
+    } else {
+        load_large_int64(offset-alloc_size, reg);
+        append_inst("add.d " + reg.print() + ", $fp, " + reg.print());
+    }
+    store_from_greg(context.inst, reg);
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 void CodeGen::gen_load() {
     auto *ptr = context.inst->get_operand(0);
     auto *type = context.inst->get_type();
     load_to_greg(ptr, Reg::t(0));
-
     if (type->is_float_type()) {
         append_inst("fld.s $ft0, $t0, 0");
         store_from_freg(context.inst, FReg::ft(0));
     } else {
         // TODO load 整数类型的数据
-        throw not_implemented_error{__FUNCTION__};
+        append_inst("ld.w $t1, $t0, 0");
+        store_from_greg(context.inst, Reg::t(1));
+        //throw not_implemented_error{__FUNCTION__};
     }
 }
 
 void CodeGen::gen_store() {
     // TODO 翻译 store 指令
-    throw not_implemented_error{__FUNCTION__};
+    auto *val = context.inst->get_operand(0);
+    auto *ptr = context.inst->get_operand(1);
+    if (val->get_type()->is_float_type()) {
+        load_to_freg(val, FReg::ft(0));
+        load_to_greg(ptr, Reg::t(0));
+        append_inst("fst.s $ft0, $t0, 0");
+    } else {
+        load_to_greg(val, Reg::t(1));
+        load_to_greg(ptr, Reg::t(0));
+        if (val->get_type()->is_int1_type()) {
+            append_inst("st.b $t1, $t0, 0");
+        } else if (val->get_type()->is_int32_type()) {
+            append_inst("st.w $t1, $t0, 0");
+        } else { // Pointer
+            append_inst("st.d $t1, $t0, 0");
+        }
+    }
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 void CodeGen::gen_icmp() {
     // TODO 处理各种整数比较的情况
-    throw not_implemented_error{__FUNCTION__};
+    // 获取指令的操作符和操作数
+    auto inst=context.inst;
+    auto op = inst->get_instr_type();         // 比较类型，例如 eq, ne, lt 等
+    auto lhs = inst->get_operand(0);  // 左操作数
+    auto rhs = inst->get_operand(1);  // 右操作数
+
+    // 分配目标寄存器
+    std::string result_reg = Reg::t(0).print();  // 存储比较结果
+    load_to_greg(lhs, Reg::t(1));
+    auto lhs_reg=Reg::t(1).print();
+    load_to_greg(rhs, Reg::t(2));
+    auto rhs_reg=Reg::t(2).print();
+    // 根据操作类型生成对应的指令
+    switch (op) {
+    case ICmpInst::eq: // ==
+        // t0 = lhs ^ rhs, t0 = !(t0 != 0)
+        append_inst("xor " + result_reg + ", " + lhs_reg + ", " + rhs_reg);
+        append_inst("sltu " + result_reg + ", $zero, " + result_reg);
+        append_inst("xori " + result_reg + ", " + result_reg + ", 1");
+        break;
+
+    case ICmpInst::ne: // !=
+        // t0 = lhs ^ rhs, t0 = (t0 != 0)
+        append_inst("xor " + result_reg + ", " + lhs_reg + ", " + rhs_reg);
+        append_inst("sltu " + result_reg + ", $zero, " + result_reg);
+        break;
+
+    case ICmpInst::lt: // <
+        // t0 = (lhs < rhs)
+        append_inst("slt " + result_reg + ", " + lhs_reg + ", " + rhs_reg);
+        break;
+
+    case ICmpInst::le: // <=
+        // t0 = !(rhs < lhs)
+        append_inst("slt " + result_reg + ", " + rhs_reg + ", " + lhs_reg);
+        append_inst("xori " + result_reg + ", " + result_reg + ", 1");
+        break;
+
+    case ICmpInst::gt: // >
+        // t0 = (rhs < lhs)
+        append_inst("slt " + result_reg + ", " + rhs_reg + ", " + lhs_reg);
+        break;
+
+    case ICmpInst::ge: // >=
+        // t0 = !(lhs < rhs)
+        append_inst("slt " + result_reg + ", " + lhs_reg + ", " + rhs_reg);
+        append_inst("xori " + result_reg + ", " + result_reg + ", 1");
+        break;
+    default:
+        throw not_implemented_error("Unsupported comparison operator.");
+    }
+    // 保存结果到中间代码的目标寄存器
+    store_from_greg(inst, Reg::t(0));
+
 }
 
 void CodeGen::gen_fcmp() {
-    // TODO 处理各种浮点数比较的情况
-    throw not_implemented_error{__FUNCTION__};
+    //TODO
+    // 获取当前指令和操作数
+    auto inst = context.inst;
+    auto op = inst->get_instr_type(); // 获取比较类型
+    auto lhs = inst->get_operand(0); // 左操作数
+    auto rhs = inst->get_operand(1); // 右操作数
+
+    // 将操作数加载到浮点寄存器
+    load_to_freg(lhs, FReg::ft(0));
+    auto lhs_reg = FReg::ft(0).print();
+    load_to_freg(rhs, FReg::ft(1));
+    auto rhs_reg = FReg::ft(1).print();
+
+    // 获取目标寄存器的栈偏移
+    auto offset = context.offset_map[inst];
+
+    // 生成唯一标签
+    auto label_true = fcmp_label_name(context.bb, context.fcmp_cnt) + "_true";
+    auto label_false = fcmp_label_name(context.bb, context.fcmp_cnt) + "_false";
+    auto label_exit = fcmp_label_name(context.bb, context.fcmp_cnt) + "_exit";
+    context.fcmp_cnt++;
+
+    // 根据操作符生成指令
+    switch (op) {
+    case ICmpInst::feq: // ==
+        append_inst("fcmp.ceq.s $fcc0, " + lhs_reg + ", " + rhs_reg);
+        break;
+    case ICmpInst::fne: // !=
+        append_inst("fcmp.ceq.s $fcc0, " + lhs_reg + ", " + rhs_reg);
+        append_inst("bceqz $fcc0, " + label_true); // 取反结果
+        break;
+    case ICmpInst::flt: // <
+        append_inst("fcmp.slt.s $fcc0, " + lhs_reg + ", " + rhs_reg);
+        break;
+    case ICmpInst::fle: // <=
+        append_inst("fcmp.sle.s $fcc0, " + lhs_reg + ", " + rhs_reg);
+        break;
+    case ICmpInst::fgt: // >
+        append_inst("fcmp.slt.s $fcc0, " + rhs_reg + ", " + lhs_reg); // rhs < lhs
+        break;
+    case ICmpInst::fge: // >=
+        append_inst("fcmp.sle.s $fcc0, " + rhs_reg + ", " + lhs_reg); // rhs <= lhs
+        break;
+    default:
+        throw not_implemented_error("Unsupported floating-point comparison operator.");
+    }
+
+    // 处理比较结果
+    append_inst("bcnez $fcc0, " + label_true); // 如果结果为真，跳转到 true_label
+    append_inst("b " + label_false);          // 否则跳转到 false_label
+
+    // True 分支
+    append_inst(label_true, ASMInstruction::Label);
+    append_inst("addi.w $t0, $zero, 1"); // 真：写入 1 到寄存器
+    append_inst("st.w", {"$t0", "$fp", std::to_string(offset)});
+    append_inst("b " + label_exit);
+
+    // False 分支
+    append_inst(label_false, ASMInstruction::Label);
+    append_inst("addi.w $t0, $zero, 0"); // 假：写入 0 到寄存器
+    append_inst("st.w", {"$t0", "$fp", std::to_string(offset)});
+    append_inst("b " + label_exit);
+
+    // Exit 标签
+    append_inst(label_exit, ASMInstruction::Label);
 }
+
 
 void CodeGen::gen_zext() {
-    // TODO 将窄位宽的整数数据进行零扩展
-    throw not_implemented_error{__FUNCTION__};
+    //TODO
+    // 获取当前指令和操作数
+    auto inst = context.inst; // 当前指令
+    auto src = inst->get_operand(0); // 窄位宽数据
+    auto dest = inst; // 宽位宽数据 (结果存储的位置)
+    // 加载源操作数到寄存器
+    load_to_greg(src, Reg::t(0));
+    auto src_reg = Reg::t(0).print();
+    // 获取目标栈偏移
+    auto offset = context.offset_map[dest];
+    // 生成扩展指令
+    // 目标位宽为 32 位，源位宽为 8 位或 16 位，零扩展直接通过逻辑操作完成
+    append_inst("andi", {src_reg, src_reg, "0xFFFF"}); // 保留低位数据，自动完成零扩展
+    // 存储结果到栈上
+    append_inst("st.w", {src_reg, "$fp", std::to_string(offset)});
 }
 
+
 void CodeGen::gen_call() {
-    // TODO 函数调用，注意我们只需要通过寄存器传递参数，即不需考虑栈上传参的情况
-    throw not_implemented_error{__FUNCTION__};
+    //TODO
+    // 获取当前指令和操作数
+    auto inst = context.inst; // 当前指令
+    auto func = inst->get_operand(0); // 被调用函数
+    auto args = inst->get_operands(); // 函数参数
+    auto ret_val = inst; // 返回值位置
+
+    // 加载参数到寄存器
+    for (size_t i = 1; i < args.size() && i <= 8; ++i) {
+        auto arg = args[i];
+        if (arg->get_type()->is_integer_type()||arg->get_type()->is_pointer_type()) {
+            // 整数参数加载到 $a0-$a7
+            load_to_greg(arg, Reg::a(i - 1));
+        } else if (arg->get_type()->is_float_type()) {
+            // 浮点参数加载到 $fa0-$fa7
+            load_to_freg(arg, FReg::fa(i - 1));
+        } else {
+            throw not_implemented_error{"Unsupported argument type."};
+        }
+    }
+    // 生成函数调用指令
+    auto func_name = func->get_name(); // 函数名
+    append_inst("bl", {func_name});
+    // 如果有返回值，存储到栈上
+    if (!ret_val->get_type()->is_void_type()) {
+        if (ret_val->get_type()->is_integer_type()) {
+            // 返回值是整数，存储 $a0
+            auto offset = context.offset_map[ret_val];
+            append_inst("st.w", {"$a0", "$fp", std::to_string(offset)});
+        } else if (ret_val->get_type()->is_float_type()) {
+            // 返回值是浮点数，存储 $fa0
+            auto offset = context.offset_map[ret_val];
+            append_inst("fst.s", {"$fa0", "$fp", std::to_string(offset)});
+        }
+    }
 }
+
 
 /*
  * %op = getelementptr [10 x i32], [10 x i32]* %op, i32 0, i32 %op
@@ -340,18 +579,83 @@ void CodeGen::gen_call() {
  *       +
  */
 void CodeGen::gen_gep() {
-    // TODO 计算内存地址
-    throw not_implemented_error{__FUNCTION__};
+    // TODO
+    // 获取 GEP 指令的操作数
+   auto gep_inst = dynamic_cast<GetElementPtrInst *>(context.inst);
+    if (!gep_inst) {
+        throw std::runtime_error("Invalid instruction type for GEP.");
+    }
+
+    // 基础指针
+    Value *base_ptr = gep_inst->get_operand(0);
+    int base_offset = context.offset_map[base_ptr];
+
+    // 加载基础指针地址到寄存器 $t0
+    append_inst("ld.d", {"$t0", "$fp", std::to_string(base_offset)});
+
+    // 索引队列
+    std::queue<Value *> index_queue;
+    for (int i = 1; i < gep_inst->get_num_operand(); ++i) {
+        index_queue.push(gep_inst->get_operand(i));
+    }
+    Type *current_type = base_ptr->get_type()->get_pointer_element_type();
+    while (!index_queue.empty()) {
+        Value *index = index_queue.front();
+        index_queue.pop();
+
+        int index_value = 0;
+
+        // 如果索引是常量
+        if (auto const_idx = dynamic_cast<ConstantInt *>(index)) {
+            index_value = const_idx->get_value();
+        } else {
+            // 加载动态索引值到 $t1
+            int index_offset = context.offset_map[index];
+            append_inst("ld.w", {"$t1", "$fp", std::to_string(index_offset)});
+            append_inst("addi.d $t2, $zero, "+std::to_string(current_type->get_size()));
+            append_inst("mul.d $t1, $t1, $t2");
+            append_inst("add.d $t0, $t0, $t1");
+            continue;
+        }
+        // 累加偏移量
+        int offset = index_value * current_type->get_size();
+        append_inst("addi.d $t0, $t0, " + std::to_string(offset));
+        // 更新类型
+        if (current_type->is_array_type()) {
+            current_type = current_type->get_array_element_type();
+        } else if (current_type->is_pointer_type()) {
+            current_type = current_type->get_pointer_element_type();
+        } else {
+            //throw std::runtime_error("Invalid GEP: Indexing non-aggregate type.");
+        }
+    }
+    // 存储计算结果
+    int gep_offset=context.offset_map[gep_inst];
+    append_inst("st.d", {"$t0", "$fp", std::to_string(gep_offset)});
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 void CodeGen::gen_sitofp() {
     // TODO 整数转向浮点数
-    throw not_implemented_error{__FUNCTION__};
+    auto inst=context.inst;
+    auto op0=inst->get_operand(0);
+    load_to_greg(op0,Reg::t(0));
+    append_inst("movgr2fr.w $ft0,$t0");
+    append_inst("ffint.s.w $ft1, $ft0");
+    store_from_freg(inst,FReg::ft(1));
+    //throw not_implemented_error{__FUNCTION__};
 }
+// 单精度浮点数向下取整
 
 void CodeGen::gen_fptosi() {
     // TODO 浮点数转向整数，注意向下取整(round to zero)
-    throw not_implemented_error{__FUNCTION__};
+    auto inst=context.inst;
+    auto op0=inst->get_operand(0);
+    load_to_freg(op0,FReg::ft(1));
+    append_inst("ftint.w.s $ft0, $ft1");
+    append_inst("movfr2gr.s $t0,$ft0");
+    store_from_greg(inst,Reg::t(0));
+    //throw not_implemented_error{__FUNCTION__};
 }
 
 void CodeGen::run() {

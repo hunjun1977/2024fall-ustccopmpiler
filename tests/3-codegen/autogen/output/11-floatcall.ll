@@ -1,5 +1,5 @@
 ; ModuleID = 'cminus'
-source_filename = "/code/compiler/24.ta/tests/3-codegen/autogen/testcases/11-floatcall.cminus"
+source_filename = "/home/hunjun/Test/2024ustc-jianmu-compiler/tests/3-codegen/autogen/testcases/11-floatcall.cminus"
 
 declare i32 @input()
 
@@ -12,8 +12,8 @@ declare void @neg_idx_except()
 define float @mod(float %arg0, float %arg1) {
 label_entry:
   %op2 = alloca float
-  store float %arg0, float* %op2
   %op3 = alloca float
+  store float %arg0, float* %op2
   store float %arg1, float* %op3
   %op4 = alloca i32
   %op5 = load float, float* %op2

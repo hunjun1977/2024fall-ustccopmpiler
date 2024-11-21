@@ -1,5 +1,5 @@
 ; ModuleID = 'cminus'
-source_filename = "/code/compiler/24.ta/tests/3-codegen/autogen/testcases/7-function.cminus"
+source_filename = "/home/hunjun/Test/2024ustc-jianmu-compiler/tests/3-codegen/autogen/testcases/7-function.cminus"
 
 declare i32 @input()
 
@@ -12,23 +12,21 @@ declare void @neg_idx_except()
 define i32 @min(i32 %arg0, i32 %arg1) {
 label_entry:
   %op2 = alloca i32
-  store i32 %arg0, i32* %op2
   %op3 = alloca i32
+  store i32 %arg0, i32* %op2
   store i32 %arg1, i32* %op3
   %op4 = load i32, i32* %op2
   %op5 = load i32, i32* %op3
   %op6 = icmp sle i32 %op4, %op5
-  %op7 = zext i1 %op6 to i32
-  %op8 = icmp ne i32 %op7, 0
-  br i1 %op8, label %label9, label %label12
-label9:                                                ; preds = %label_entry
-  %op10 = load i32, i32* %op2
-  ret i32 %op10
-label11:
+  br i1 %op6, label %label_turnBB1, label %label_falseBB1
+label_turnBB1:                                                ; preds = %label_entry
+  %op7 = load i32, i32* %op2
+  ret i32 %op7
+label_falseBB1:                                                ; preds = %label_entry
+  %op8 = load i32, i32* %op3
+  ret i32 %op8
+label_nextBB1:
   ret i32 0
-label12:                                                ; preds = %label_entry
-  %op13 = load i32, i32* %op3
-  ret i32 %op13
 }
 define i32 @main() {
 label_entry:

@@ -1,5 +1,5 @@
 ; ModuleID = 'cminus'
-source_filename = "/code/compiler/24.ta/tests/3-codegen/autogen/testcases/12-global.cminus"
+source_filename = "/home/hunjun/Test/2024ustc-jianmu-compiler/tests/3-codegen/autogen/testcases/12-global.cminus"
 
 @seed = global i32 zeroinitializer
 declare i32 @input()
@@ -23,14 +23,12 @@ define i32 @randBin() {
 label_entry:
   %op0 = call i32 @randomLCG()
   %op1 = icmp sgt i32 %op0, 0
-  %op2 = zext i1 %op1 to i32
-  %op3 = icmp ne i32 %op2, 0
-  br i1 %op3, label %label4, label %label6
-label4:                                                ; preds = %label_entry
+  br i1 %op1, label %label_turnBB1, label %label_falseBB1
+label_turnBB1:                                                ; preds = %label_entry
   ret i32 1
-label5:
+label_falseBB1:                                                ; preds = %label_entry
   ret i32 0
-label6:                                                ; preds = %label_entry
+label_nextBB1:
   ret i32 0
 }
 define i32 @returnToZeroSteps() {
@@ -40,41 +38,37 @@ label_entry:
   store i32 0, i32* %op0
   store i32 0, i32* %op1
   br label %label2
-label2:                                                ; preds = %label_entry, %label26
+label2:                                                ; preds = %label_entry, %label_nextBB3
   %op3 = load i32, i32* %op1
   %op4 = icmp slt i32 %op3, 20
-  %op5 = zext i1 %op4 to i32
-  %op6 = icmp ne i32 %op5, 0
-  br i1 %op6, label %label7, label %label10
-label7:                                                ; preds = %label2
-  %op8 = call i32 @randBin()
-  %op9 = icmp ne i32 %op8, 0
-  br i1 %op9, label %label11, label %label21
-label10:                                                ; preds = %label2
+  br i1 %op4, label %label5, label %label8
+label5:                                                ; preds = %label2
+  %op6 = call i32 @randBin()
+  %op7 = icmp ne i32 %op6, 0
+  br i1 %op7, label %label_turnBB2, label %label_falseBB2
+label8:                                                ; preds = %label2
   ret i32 20
-label11:                                                ; preds = %label7
-  %op12 = load i32, i32* %op0
-  %op13 = add i32 %op12, 1
-  store i32 %op13, i32* %op0
-  br label %label14
-label14:                                                ; preds = %label11, %label21
-  %op15 = load i32, i32* %op1
-  %op16 = add i32 %op15, 1
-  store i32 %op16, i32* %op1
-  %op17 = load i32, i32* %op0
-  %op18 = icmp eq i32 %op17, 0
-  %op19 = zext i1 %op18 to i32
-  %op20 = icmp ne i32 %op19, 0
-  br i1 %op20, label %label24, label %label26
-label21:                                                ; preds = %label7
-  %op22 = load i32, i32* %op0
-  %op23 = sub i32 %op22, 1
-  store i32 %op23, i32* %op0
-  br label %label14
-label24:                                                ; preds = %label14
-  %op25 = load i32, i32* %op1
-  ret i32 %op25
-label26:                                                ; preds = %label14
+label_turnBB2:                                                ; preds = %label5
+  %op9 = load i32, i32* %op0
+  %op10 = add i32 %op9, 1
+  store i32 %op10, i32* %op0
+  br label %label_nextBB2
+label_falseBB2:                                                ; preds = %label5
+  %op11 = load i32, i32* %op0
+  %op12 = sub i32 %op11, 1
+  store i32 %op12, i32* %op0
+  br label %label_nextBB2
+label_nextBB2:                                                ; preds = %label_falseBB2, %label_turnBB2
+  %op13 = load i32, i32* %op1
+  %op14 = add i32 %op13, 1
+  store i32 %op14, i32* %op1
+  %op15 = load i32, i32* %op0
+  %op16 = icmp eq i32 %op15, 0
+  br i1 %op16, label %label_turnBB3, label %label_nextBB3
+label_turnBB3:                                                ; preds = %label_nextBB2
+  %op17 = load i32, i32* %op1
+  ret i32 %op17
+label_nextBB3:                                                ; preds = %label_nextBB2
   br label %label2
 }
 define i32 @main() {
@@ -83,19 +77,17 @@ label_entry:
   store i32 0, i32* %op0
   store i32 3407, i32* @seed
   br label %label1
-label1:                                                ; preds = %label_entry, %label6
+label1:                                                ; preds = %label_entry, %label4
   %op2 = load i32, i32* %op0
   %op3 = icmp slt i32 %op2, 20
-  %op4 = zext i1 %op3 to i32
-  %op5 = icmp ne i32 %op4, 0
-  br i1 %op5, label %label6, label %label10
-label6:                                                ; preds = %label1
-  %op7 = call i32 @returnToZeroSteps()
-  call void @output(i32 %op7)
-  %op8 = load i32, i32* %op0
-  %op9 = add i32 %op8, 1
-  store i32 %op9, i32* %op0
+  br i1 %op3, label %label4, label %label8
+label4:                                                ; preds = %label1
+  %op5 = call i32 @returnToZeroSteps()
+  call void @output(i32 %op5)
+  %op6 = load i32, i32* %op0
+  %op7 = add i32 %op6, 1
+  store i32 %op7, i32* %op0
   br label %label1
-label10:                                                ; preds = %label1
+label8:                                                ; preds = %label1
   ret i32 0
 }

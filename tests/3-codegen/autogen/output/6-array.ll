@@ -1,5 +1,5 @@
 ; ModuleID = 'cminus'
-source_filename = "/code/compiler/24.ta/tests/3-codegen/autogen/testcases/6-array.cminus"
+source_filename = "/home/hunjun/Test/2024ustc-jianmu-compiler/tests/3-codegen/autogen/testcases/6-array.cminus"
 
 declare i32 @input()
 
@@ -14,56 +14,56 @@ label_entry:
   %op0 = alloca [10 x i32]
   %op1 = alloca i32
   store i32 0, i32* %op1
-  %op2 = icmp slt i32 0, 0
-  br i1 %op2, label %label3, label %label4
-label3:                                                ; preds = %label_entry
+  %op2 = icmp sge i32 0, 0
+  br i1 %op2, label %label_end1, label %label_error1
+label_error1:                                                ; preds = %label_entry
   call void @neg_idx_except()
-  ret i32 0
-label4:                                                ; preds = %label_entry
-  %op5 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0
-  store i32 11, i32* %op5
-  %op6 = icmp slt i32 4, 0
-  br i1 %op6, label %label7, label %label8
-label7:                                                ; preds = %label4
+  br label %label_end1
+label_end1:                                                ; preds = %label_entry, %label_error1
+  %op3 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0
+  store i32 11, i32* %op3
+  %op4 = icmp sge i32 4, 0
+  br i1 %op4, label %label_end2, label %label_error2
+label_error2:                                                ; preds = %label_end1
   call void @neg_idx_except()
-  ret i32 0
-label8:                                                ; preds = %label4
-  %op9 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 4
-  store i32 22, i32* %op9
-  %op10 = icmp slt i32 9, 0
-  br i1 %op10, label %label11, label %label12
-label11:                                                ; preds = %label8
+  br label %label_end2
+label_end2:                                                ; preds = %label_end1, %label_error2
+  %op5 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 4
+  store i32 22, i32* %op5
+  %op6 = icmp sge i32 9, 0
+  br i1 %op6, label %label_end3, label %label_error3
+label_error3:                                                ; preds = %label_end2
   call void @neg_idx_except()
-  ret i32 0
-label12:                                                ; preds = %label8
-  %op13 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 9
-  store i32 33, i32* %op13
-  %op14 = icmp slt i32 0, 0
-  br i1 %op14, label %label15, label %label16
-label15:                                                ; preds = %label12
+  br label %label_end3
+label_end3:                                                ; preds = %label_end2, %label_error3
+  %op7 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 9
+  store i32 33, i32* %op7
+  %op8 = icmp sge i32 0, 0
+  br i1 %op8, label %label_end4, label %label_error4
+label_error4:                                                ; preds = %label_end3
   call void @neg_idx_except()
-  ret i32 0
-label16:                                                ; preds = %label12
-  %op17 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0
-  %op18 = load i32, i32* %op17
-  call void @output(i32 %op18)
-  %op19 = icmp slt i32 4, 0
-  br i1 %op19, label %label20, label %label21
-label20:                                                ; preds = %label16
+  br label %label_end4
+label_end4:                                                ; preds = %label_end3, %label_error4
+  %op9 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0
+  %op10 = load i32, i32* %op9
+  call void @output(i32 %op10)
+  %op11 = icmp sge i32 4, 0
+  br i1 %op11, label %label_end5, label %label_error5
+label_error5:                                                ; preds = %label_end4
   call void @neg_idx_except()
-  ret i32 0
-label21:                                                ; preds = %label16
-  %op22 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 4
-  %op23 = load i32, i32* %op22
-  call void @output(i32 %op23)
-  %op24 = icmp slt i32 9, 0
-  br i1 %op24, label %label25, label %label26
-label25:                                                ; preds = %label21
+  br label %label_end5
+label_end5:                                                ; preds = %label_end4, %label_error5
+  %op12 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 4
+  %op13 = load i32, i32* %op12
+  call void @output(i32 %op13)
+  %op14 = icmp sge i32 9, 0
+  br i1 %op14, label %label_end6, label %label_error6
+label_error6:                                                ; preds = %label_end5
   call void @neg_idx_except()
-  ret i32 0
-label26:                                                ; preds = %label21
-  %op27 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 9
-  %op28 = load i32, i32* %op27
-  call void @output(i32 %op28)
+  br label %label_end6
+label_end6:                                                ; preds = %label_end5, %label_error6
+  %op15 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 9
+  %op16 = load i32, i32* %op15
+  call void @output(i32 %op16)
   ret i32 0
 }

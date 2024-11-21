@@ -60,5 +60,9 @@ class ConstantFP : public Constant {
   public:
     static ConstantFP *get(float val, Module *m);
     float get_value() { return val_; }
+    // 向下取整的方法
+    void floor_to_int() {
+        val_ = static_cast<int>(val_);  // 向下取整并更新 val_
+    }
     virtual std::string print() override;
 };

@@ -1,5 +1,5 @@
 ; ModuleID = 'cminus'
-source_filename = "/code/compiler/24.ta/tests/3-codegen/autogen/testcases/2-calculate.cminus"
+source_filename = "/home/hunjun/Test/2024ustc-jianmu-compiler/tests/3-codegen/autogen/testcases/2-calculate.cminus"
 
 declare i32 @input()
 

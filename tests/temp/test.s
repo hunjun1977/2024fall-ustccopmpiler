@@ -41,7 +41,8 @@ mod:
 	fst.s $ft2, $fp, -72
 # %op8 = fptosi float %op7 to i32
 	fld.s $ft1, $fp, -72
-	ftint.w.s $ft0, $ft1
+	ftintrz.w.s $ft0, $ft1
+test:
 	movfr2gr.s $t0,$ft0
 	st.w $t0, $fp, -76
 # store i32 %op8, i32* %op4
@@ -63,8 +64,7 @@ mod:
 # %op12 = sitofp i32 %op10 to float
 	ld.w $t0, $fp, -84
 	movgr2fr.w $ft0,$t0
-	ffint.s.w $ft1, $ft0
-	fst.s $ft1, $fp, -92
+	fst.s $ft0, $fp, -92
 # %op13 = fmul float %op12, %op11
 	fld.s $ft0, $fp, -92
 	fld.s $ft1, $fp, -88
@@ -124,9 +124,6 @@ main:
 	fld.s $fa1, $fp, -48
 	bl mod
 	fst.s $fa0, $fp, -52
-# call void @outputFloat(float %op4)
-	fld.s $fa0, $fp, -52
-	bl outputFloat
 # ret i32 0
 	addi.w $a0, $zero, 0
 	addi.d $sp, $sp, 64
