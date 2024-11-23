@@ -506,8 +506,8 @@ void CodeGen::gen_zext() {
     // 获取目标栈偏移
     auto offset = context.offset_map[dest];
     // 生成扩展指令
-    // 目标位宽为 32 位，源位宽为 8 位或 16 位，零扩展直接通过逻辑操作完成
-    append_inst("andi", {src_reg, src_reg, "0xFFFF"}); // 保留低位数据，自动完成零扩展
+    // 目标位宽为 32 位，源位宽为 8 位，零扩展直接通过逻辑操作完成
+    append_inst("andi", {src_reg, src_reg, "0xFF"}); // 保留低位数据，自动完成零扩展
     // 存储结果到栈上
     append_inst("st.w", {src_reg, "$fp", std::to_string(offset)});
 }

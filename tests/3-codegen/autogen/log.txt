@@ -334,6 +334,15 @@ calldone
 returnstmt
 90								90
 0								0
+==========./testcases/9-assign_cast.cminus==========
+returnstmt
+% = load i32, i32* %
+% = load i32, i32* %
+i32
+returnstmt
+% = load i32, i32* %
+% = load i32, i32* %
+i32
 ==========./testcases/9-fibonacci.cminus==========
 i32*
 % = alloca i32
