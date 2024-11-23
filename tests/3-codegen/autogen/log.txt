@@ -794,5 +794,5 @@ calldone
 i32
 calldone
 returnstmt
-15							      |	139
-0							      <
+15								15
+0								0

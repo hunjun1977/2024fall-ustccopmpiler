@@ -208,7 +208,7 @@ knapsack:
 	b .knapsack_label_end1
 .knapsack_label_end1:
 # %op14 = getelementptr [66 x i32], [66 x i32]* @dp, i32 0, i32 %op12
-	ld.d $t0, $fp, 0
+	la.local $t0, dp
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -86
 	addi.d $t2, $zero, 4
@@ -289,7 +289,7 @@ knapsack:
 	b .knapsack_label_end2
 .knapsack_label_end2:
 # %op26 = getelementptr [66 x i32], [66 x i32]* @dp, i32 0, i32 %op20
-	ld.d $t0, $fp, 0
+	la.local $t0, dp
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -116
 	addi.d $t2, $zero, 4
@@ -313,7 +313,7 @@ knapsack:
 	b .knapsack_label_end3
 .knapsack_label_end3:
 # %op28 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 %op24
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -129
 	addi.d $t2, $zero, 4
@@ -445,7 +445,7 @@ knapsack:
 	b .knapsack_label_end4
 .knapsack_label_end4:
 # %op50 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 %op43
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -207
 	addi.d $t2, $zero, 4
@@ -492,7 +492,7 @@ knapsack:
 	b .knapsack_label_end5
 .knapsack_label_end5:
 # %op57 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 %op55
-	ld.d $t0, $fp, 0
+	la.local $t0, v
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -253
 	addi.d $t2, $zero, 4
@@ -526,7 +526,7 @@ knapsack:
 	b .knapsack_label_end6
 .knapsack_label_end6:
 # %op61 = getelementptr [66 x i32], [66 x i32]* @dp, i32 0, i32 %op48
-	ld.d $t0, $fp, 0
+	la.local $t0, dp
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -224
 	addi.d $t2, $zero, 4
@@ -595,7 +595,7 @@ main:
 	b .main_label_end7
 .main_label_end7:
 # %op2 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 0
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 0
 	st.d $t0, $fp, -37
@@ -620,7 +620,7 @@ main:
 	b .main_label_end8
 .main_label_end8:
 # %op4 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 1
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 4
 	st.d $t0, $fp, -46
@@ -645,7 +645,7 @@ main:
 	b .main_label_end9
 .main_label_end9:
 # %op6 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 2
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 8
 	st.d $t0, $fp, -55
@@ -670,7 +670,7 @@ main:
 	b .main_label_end10
 .main_label_end10:
 # %op8 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 3
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 12
 	st.d $t0, $fp, -64
@@ -695,7 +695,7 @@ main:
 	b .main_label_end11
 .main_label_end11:
 # %op10 = getelementptr [5 x i32], [5 x i32]* @w, i32 0, i32 4
-	ld.d $t0, $fp, 0
+	la.local $t0, w
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 16
 	st.d $t0, $fp, -73
@@ -720,7 +720,7 @@ main:
 	b .main_label_end12
 .main_label_end12:
 # %op12 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 0
-	ld.d $t0, $fp, 0
+	la.local $t0, v
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 0
 	st.d $t0, $fp, -82
@@ -745,7 +745,7 @@ main:
 	b .main_label_end13
 .main_label_end13:
 # %op14 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 1
-	ld.d $t0, $fp, 0
+	la.local $t0, v
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 4
 	st.d $t0, $fp, -91
@@ -770,7 +770,7 @@ main:
 	b .main_label_end14
 .main_label_end14:
 # %op16 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 2
-	ld.d $t0, $fp, 0
+	la.local $t0, v
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 8
 	st.d $t0, $fp, -100
@@ -795,7 +795,7 @@ main:
 	b .main_label_end15
 .main_label_end15:
 # %op18 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 3
-	ld.d $t0, $fp, 0
+	la.local $t0, v
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 12
 	st.d $t0, $fp, -109
@@ -820,7 +820,7 @@ main:
 	b .main_label_end16
 .main_label_end16:
 # %op20 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 4
-	ld.d $t0, $fp, 0
+	la.local $t0, v
 	addi.d $t0, $t0, 0
 	addi.d $t0, $t0, 16
 	st.d $t0, $fp, -118
@@ -889,7 +889,7 @@ main:
 	b .main_label_end17
 .main_label_end17:
 # %op31 = getelementptr [66 x i32], [66 x i32]* @dp, i32 0, i32 %op25
-	ld.d $t0, $fp, 0
+	la.local $t0, dp
 	addi.d $t0, $t0, 0
 	ld.w $t1, $fp, -127
 	addi.d $t2, $zero, 4

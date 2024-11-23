@@ -3,6 +3,7 @@
 #include "CodeGenUtil.hpp"
 #include "Constant.hpp"
 #include "Value.hpp"
+#include <string>
 #include <vector>
 #include <queue>
 
@@ -591,10 +592,14 @@ void CodeGen::gen_gep() {
 
     // 基础指针
     Value *base_ptr = gep_inst->get_operand(0);
+    std::string opname=base_ptr->get_name();
     int base_offset = context.offset_map[base_ptr];
-
+    if(base_offset){//检查是否为全局变量
     // 加载基础指针地址到寄存器 $t0
-    append_inst("ld.d", {"$t0", "$fp", std::to_string(base_offset)});
+    append_inst("ld.d", {"$t0", "$fp", std::to_string(base_offset)});}
+    else{
+        append_inst("la.local", {"$t0", opname});
+    }
 
     // 索引队列
     std::queue<Value *> index_queue;
