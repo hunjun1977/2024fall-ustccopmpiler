@@ -1,0 +1,6 @@
+digraph G {
+	label_entry->label8;
+	label8->label12;
+	label8->label64;
+	label12->label8;
+}

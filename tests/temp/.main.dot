@@ -1,0 +1,12 @@
+digraph "CFG for 'main' function" {
+	label="CFG for 'main' function";
+
+	Node0x829af50 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#b9d0f970",label="{label_entry:\l  %op0 = call i32 @input()\l  br label %label1\l}"];
+	Node0x829af50 -> Node0x829b200;
+	Node0x829b200 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{label1:                                           \l  %op2 = phi i32 [ 0, %label_entry ], [ %op33, %label7 ]\l  %op3 = phi i32 [ 0, %label_entry ], [ %op32, %label7 ]\l  %op4 = icmp slt i32 %op2, %op0\l  %op5 = zext i1 %op4 to i32\l  %op6 = icmp ne i32 %op5, 0\l  br i1 %op6, label %label7, label %label34\l|{<s0>T|<s1>F}}"];
+	Node0x829b200:s0 -> Node0x829b970;
+	Node0x829b200:s1 -> Node0x829bd60;
+	Node0x829b970 [shape=record,color="#b70d28ff", style=filled, fillcolor="#bb1b2c70",label="{label7:                                           \l  %op8 = fmul float 0x3FF3C0C200000000, 0x4016F06A20000000\l  %op9 = fmul float %op8, 0x4002AA9940000000\l  %op10 = fmul float %op9, 0x4011781D80000000\l  %op11 = fmul float %op10, 0x401962AC40000000\l  %op12 = fptosi float %op11 to i32\l  %op13 = mul i32 %op12, %op12\l  %op14 = mul i32 %op13, %op12\l  %op15 = mul i32 %op14, %op12\l  %op16 = mul i32 %op15, %op12\l  %op17 = mul i32 %op16, %op12\l  %op18 = mul i32 %op17, %op17\l  %op19 = mul i32 %op18, %op17\l  %op20 = mul i32 %op19, %op17\l  %op21 = mul i32 %op20, %op17\l  %op22 = mul i32 %op21, %op17\l  %op23 = mul i32 %op22, %op22\l  %op24 = mul i32 %op23, %op22\l  %op25 = mul i32 %op24, %op22\l  %op26 = mul i32 %op25, %op22\l  %op27 = mul i32 %op26, %op22\l  %op28 = mul i32 %op27, %op27\l  %op29 = mul i32 %op28, %op27\l  %op30 = mul i32 %op29, %op27\l  %op31 = mul i32 %op30, %op27\l  %op32 = mul i32 %op31, %op27\l  %op33 = add i32 %op2, 1\l  br label %label1\l}"];
+	Node0x829b970 -> Node0x829b200;
+	Node0x829bd60 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#b9d0f970",label="{label34:                                          \l  call void @output(i32 %op3)\l  ret void\l}"];
+}

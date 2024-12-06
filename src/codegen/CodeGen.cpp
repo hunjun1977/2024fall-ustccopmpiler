@@ -266,6 +266,7 @@ void CodeGen::gen_br() {
     }
 }
 
+
 void CodeGen::gen_binary() {
     load_to_greg(context.inst->get_operand(0), Reg::t(0));
     load_to_greg(context.inst->get_operand(1), Reg::t(1));
@@ -494,7 +495,6 @@ void CodeGen::gen_fcmp() {
     append_inst(label_exit, ASMInstruction::Label);
 }
 
-
 void CodeGen::gen_zext() {
     //TODO
     // 获取当前指令和操作数
@@ -718,6 +718,7 @@ void CodeGen::run() {
             allocate();
             // 生成 prologue
             gen_prologue();
+            std::vector <Instruction*> allphi;
 
             for (auto &bb : func.get_basic_blocks()) {
                 context.bb = &bb;
@@ -780,6 +781,7 @@ void CodeGen::run() {
                          * copy-stmts */
                         /* we can collect all phi and deal them at
                          * the end */
+                        allphi.push_back(&instr);
                         break;
                     case Instruction::call:
                         gen_call();
@@ -798,6 +800,29 @@ void CodeGen::run() {
                         break;
                     }
                 }
+            }
+            //处理phi指令
+            for (size_t i = 0; i < allphi.size(); ++i) {
+                auto curinstr=dynamic_cast<PhiInst*>(allphi[i]);
+                auto allop=curinstr->get_phi_pairs();
+                for(size_t i = 0; i < allop.size(); ++i){
+                    auto op=allop[i];
+                    auto value = op.first;
+                    auto block = op.second;
+                    context.bb=block;
+                    if(value->get_type()->is_int32_type()){
+                        load_to_greg(value, Reg::t(0));
+                        append_inst("add.w $t2,$zero,$t1");
+                        store_from_greg(curinstr, Reg::t(2));
+                    }
+                    if(value->get_type()->is_float_type()){
+                        load_to_freg(value, FReg::ft(0));
+                        load_float_imm(0,FReg::ft(1));
+                        append_inst("fadd.s $ft2,$ft0,$ft1");
+                        store_from_freg(curinstr, FReg::ft(2));
+                    }
+                }
+
             }
             // 生成 epilogue
             gen_epilogue();

@@ -1,42 +1,54 @@
-; ModuleID = 'test.c'
-source_filename = "test.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
+; ModuleID = 'cminus'
+source_filename = "/home/zox/compiler/2024ustc-jianmu-compiler-ta/tests/4-mem2reg/performance-cases/testcase-1.cminus"
 
-; Function Attrs: noinline nounwind optnone uwtable
-define dso_local void @test(i32* noundef %0) #0 {
-  %2 = alloca i32*, align 8
-  store i32* %0, i32** %2, align 8
-  %3 = load i32*, i32** %2, align 8
-  %4 = getelementptr inbounds i32, i32* %3, i64 3
-  %5 = load i32, i32* %4, align 4
-  %6 = call i32 (i32, ...) bitcast (i32 (...)* @output to i32 (i32, ...)*)(i32 noundef %5)
+declare i32 @input()
+
+declare void @output(i32)
+
+declare void @outputFloat(float)
+
+declare void @neg_idx_except()
+
+define void @main() {
+label_entry:
+  %op0 = call i32 @input()
+  br label %label1
+label1:                                                ; preds = %label_entry, %label7
+  %op2 = phi i32 [ 0, %label_entry ], [ %op33, %label7 ]
+  %op3 = phi i32 [ 0, %label_entry ], [ %op32, %label7 ]
+  %op4 = icmp slt i32 %op2, %op0
+  %op5 = zext i1 %op4 to i32
+  %op6 = icmp ne i32 %op5, 0
+  br i1 %op6, label %label7, label %label34
+label7:                                                ; preds = %label1
+  %op8 = fmul float 0x3ff3c0c200000000, 0x4016f06a20000000
+  %op9 = fmul float %op8, 0x4002aa9940000000
+  %op10 = fmul float %op9, 0x4011781d80000000
+  %op11 = fmul float %op10, 0x401962ac40000000
+  %op12 = fptosi float %op11 to i32
+  %op13 = mul i32 %op12, %op12
+  %op14 = mul i32 %op13, %op12
+  %op15 = mul i32 %op14, %op12
+  %op16 = mul i32 %op15, %op12
+  %op17 = mul i32 %op16, %op12
+  %op18 = mul i32 %op17, %op17
+  %op19 = mul i32 %op18, %op17
+  %op20 = mul i32 %op19, %op17
+  %op21 = mul i32 %op20, %op17
+  %op22 = mul i32 %op21, %op17
+  %op23 = mul i32 %op22, %op22
+  %op24 = mul i32 %op23, %op22
+  %op25 = mul i32 %op24, %op22
+  %op26 = mul i32 %op25, %op22
+  %op27 = mul i32 %op26, %op22
+  %op28 = mul i32 %op27, %op27
+  %op29 = mul i32 %op28, %op27
+  %op30 = mul i32 %op29, %op27
+  %op31 = mul i32 %op30, %op27
+  %op32 = mul i32 %op31, %op27
+  %op33 = add i32 %op2, 1
+  br label %label1
+label34:                                                ; preds = %label1
+  call void @output(i32 %op3)
   ret void
 }
-
-declare i32 @output(...) #1
-
-; Function Attrs: noinline nounwind optnone uwtable
-define dso_local i32 @main() #0 {
-  %1 = alloca i32, align 4
-  %2 = alloca [10 x i32], align 16
-  store i32 0, i32* %1, align 4
-  %3 = getelementptr inbounds [10 x i32], [10 x i32]* %2, i64 0, i64 3
-  store i32 10, i32* %3, align 4
-  %4 = getelementptr inbounds [10 x i32], [10 x i32]* %2, i64 0, i64 0
-  call void @test(i32* noundef %4)
-  ret i32 0
-}
-
-attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
-
-!0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 7, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}

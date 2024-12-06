@@ -1,0 +1,10 @@
+digraph "CFG for 'cmp' function" {
+	label="CFG for 'cmp' function";
+
+	Node0x2f1f0790 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{label_entry:\l  %op2 = icmp slt i32 %arg0, %arg1\l  %op3 = zext i1 %op2 to i32\l  %op4 = icmp ne i32 %op3, 0\l  br i1 %op4, label %label5, label %label7\l|{<s0>T|<s1>F}}"];
+	Node0x2f1f0790:s0 -> Node0x2f1f0f60;
+	Node0x2f1f0790:s1 -> Node0x2f1f0fd0;
+	Node0x2f1f0f60 [shape=record,color="#b70d28ff", style=filled, fillcolor="#e8765c70",label="{label5:                                           \l  ret i32 1\l}"];
+	Node0x2f1f11f0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#3d50c370",label="{label6:                                           \l  ret i32 0\l}"];
+	Node0x2f1f0fd0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f7b39670",label="{label7:                                           \l  ret i32 0\l}"];
+}

@@ -6,7 +6,7 @@
 
 /**
  * @brief Mem2Reg Pass的主入口函数
- * 
+ *
  * 该函数执行内存到寄存器的提升过程，将栈上的局部变量提升到SSA格式。
  * 主要步骤：
  * 1. 创建并运行支配树分析
@@ -14,7 +14,7 @@
  *    - 清空相关数据结构
  *    - 插入必要的phi指令
  *    - 执行变量重命名
- * 
+ *
  * 注意：函数执行后，冗余的局部变量分配指令将由后续的死代码删除Pass处理
  */
 void Mem2Reg::run() {
@@ -22,11 +22,12 @@ void Mem2Reg::run() {
     dominators_ = std::make_unique<Dominators>(m_);
     // 建立支配树
     dominators_->run();
-    // 以函数为单元遍历实现 Mem2Reg 算法
+
     for (auto &f : m_->get_functions()) {
         if (f.is_declaration())
             continue;
         func_ = &f;
+        //dominators_->dump_dominator_tree(func_);
         var_val_stack.clear();
         phi_lval.clear();
         if (func_->get_basic_blocks().size() >= 1) {
@@ -41,17 +42,17 @@ void Mem2Reg::run() {
 
 /**
  * @brief 在必要的位置插入phi指令
- * 
+ *
  * 该函数实现了经典的phi节点插入算法：
  * 1. 收集全局活跃变量：
  *    - 扫描所有store指令
  *    - 识别在多个基本块中被赋值的变量
- * 
+ *
  * 2. 插入phi指令：
  *    - 对每个全局活跃变量
  *    - 在其定值点的支配边界处插入phi指令
  *    - 使用工作表法处理迭代式的phi插入
- * 
+ *
  * phi指令的插入遵循最小化原则，只在必要的位置插入phi节点
  */
 void Mem2Reg::generate_phi() {
@@ -59,6 +60,7 @@ void Mem2Reg::generate_phi() {
     // 步骤一：找到活跃在多个 block 的全局名字集合，以及它们所属的 bb 块
     std::set<Value *> global_live_var_name;
     std::map<Value *, std::set<BasicBlock *>> live_var_2blocks;
+
     for (auto &bb : func_->get_basic_blocks()) {
         std::set<Value *> var_is_killed;
         for (auto &instr : bb.get_instructions()) {
@@ -103,17 +105,74 @@ void Mem2Reg::generate_phi() {
 }
 
 void Mem2Reg::rename(BasicBlock *bb) {
+    // bb->print();
+    if (phi_map.size() == 0) {
+        return;
+    }
     std::vector<Instruction *> wait_delete;
     // TODO
-    // 步骤一：将 phi 指令作为 lval 的最新定值，lval 即是为局部变量 alloca 出的地址空间
-    // 步骤二：用 lval 最新的定值替代对应的load指令
-    // 步骤三：将 store 指令的 rval，也即被存入内存的值，作为 lval 的最新定值
-    // 步骤四：为 lval 对应的 phi 指令参数补充完整
-    // 步骤五：对 bb 在支配树上的所有后继节点，递归执行 re_name 操作
-    // 步骤六：pop出 lval 的最新定值
-    
-    // 步骤七：清除冗余的指令
-    for (auto instr : wait_delete) {
-        bb->erase_instr(instr);
+    // 步骤一：将 phi 指令作为 lval 的最新定值，lval 即是为局部变量 alloca
+    // 出的地址空间 步骤二：用 lval 最新的定值替代对应的load指令 步骤三：将
+    // store 指令的 rval，也即被存入内存的值，作为 lval 的最新定值 步骤四：为
+    // lval 对应的 phi 指令参数补充完整 步骤五：对 bb
+    // 在支配树上的所有后继节点，递归执行 re_name 操作 步骤六：pop出 lval
+    // 的最新定值 步骤七：清除冗余的指令
+    // 步骤一：将 phi 指令作为 lval 的最新定值
+    for (auto &instr : bb->get_instructions()) {
+        if (instr.is_phi()) {
+            auto *phi = dynamic_cast<PhiInst *>(&instr);
+            auto l_val = phi_lval.at(phi); // 获取 phi 对应的 lval
+            var_val_stack[l_val].push_back(
+                phi); // 将 phi 指令加入到 lval 的定值栈中
+        }
+        if (instr.is_load()) {
+            auto *load_instr = static_cast<LoadInst *>(&instr);
+            auto l_val = load_instr->get_lval();
+            auto r_val = var_val_stack.at(l_val).back(); // 获取最新的值
+            load_instr->replace_all_use_with(
+                r_val); // 用最新值替换 load 指令的 r_val
+            wait_delete.push_back(&instr); // 标记 load 指令待删除
+        }
+        if (instr.is_store()) {
+            auto *store_instr = dynamic_cast<StoreInst *>(&instr);
+            auto l_val = store_instr->get_lval();
+            auto r_val = store_instr->get_rval();
+            var_val_stack[l_val].push_back(r_val); // 更新 lval 的值
+            wait_delete.push_back(&instr); // 标记 store 指令待删除
+        }
+        // 步骤四：为 lval 对应的 phi 指令参数补充完整
+        for (auto *succ : bb->get_succ_basic_blocks()) {
+            for (auto &instr : succ->get_instructions()) {
+                if (auto *phi = dynamic_cast<PhiInst *>(&instr)) {
+                    auto l_val = phi_lval.at(phi);
+                    if (!var_val_stack[l_val].empty()) {
+                        phi->add_phi_pair_operand(var_val_stack[l_val].back(),
+                                                  bb); // 为 phi 指令添加操作数
+                    }
+                }
+            }
+        }
+
+        // 步骤五：对 bb 在支配树上的所有后继节点，递归执行 rename 操作
+        for (auto *succ : dominators_->get_dom_tree_succ_blocks(bb)) {
+            rename(succ);
+        }
+
+        // 步骤六：pop 出 lval 的最新定值
+        for (auto &instr : bb->get_instructions()) {
+            if (auto *phi = dynamic_cast<PhiInst *>(&instr)) {
+                auto l_val = phi_lval.at(phi);
+                var_val_stack[l_val].pop_back(); // pop 出最新值
+            } else if (instr.is_store()) {
+                auto *store_instr = static_cast<StoreInst *>(&instr);
+                auto l_val = store_instr->get_lval();
+                var_val_stack[l_val].pop_back(); // pop 出 store 的最新值
+            }
+        }
+
+        // 步骤七：清除冗余的指令
+        for (auto *instr : wait_delete) {
+            bb->erase_instr(instr); // 删除冗余的指令
+        }
     }
 }

@@ -42,6 +42,10 @@ void Dominators::run_on_func(Function *f) {
     create_idom(f);
     create_dominance_frontier(f);
     create_dom_tree_succ(f);
+    //dump_cfg(f);
+    //print_idom(f);
+    //dump_dominator_tree(f);
+    //print_dominance_frontier(f);
     create_dom_dfs_order(f);
 }
 
@@ -107,7 +111,36 @@ void Dominators::dfs(BasicBlock *bb, std::set<BasicBlock *> &visited) {
  */
 void Dominators::create_idom(Function *f) {
     // TODO 分析得到 f 中各个基本块的 idom
-    throw "Unimplemented create_idom";
+    bool changed = true;
+    // 初始化：入口块的直接支配者是自身
+    idom_[f->get_entry_block()] = f->get_entry_block();
+
+    while (changed) {
+        changed = false;
+        // 对每个基本块进行迭代
+        for (auto &bb1 : f->get_basic_blocks()) {
+            auto bb = &bb1;
+            if (bb == f->get_entry_block()) continue;
+
+            BasicBlock *new_idom = nullptr;
+            // 计算bb的支配者交集
+            for (auto &pred : bb->get_pre_basic_blocks()) {
+                if (idom_[pred] != nullptr) {
+                    if (new_idom == nullptr) {
+                        new_idom = pred;
+                    } else {
+                        new_idom = intersect(new_idom, pred);
+                    }
+                }
+            }
+
+            if (new_idom != idom_[bb]) {
+                idom_[bb] = new_idom;
+                changed = true;
+            }
+        }
+    }
+
 }
 
 /**
@@ -120,7 +153,23 @@ void Dominators::create_idom(Function *f) {
  */
 void Dominators::create_dominance_frontier(Function *f) {
     // TODO 分析得到 f 中各个基本块的支配边界集合
-    throw "Unimplemented create_dominance_frontier";
+    //throw "Unimplemented create_dominance_frontier";
+     for (auto &bb1 : f->get_basic_blocks()) {
+        BasicBlock *bb = &bb1;
+        // 如果基本块有多个前驱节点，则它是一个连接点
+        if (bb->get_pre_basic_blocks().size() > 1) {
+            // 对于连接点的每个前驱节点
+            for (auto &pred : bb->get_pre_basic_blocks()) {
+                BasicBlock *runner = pred;
+                // 向上遍历支配树，直到到达连接点的直接支配者
+                while (runner!= get_idom(bb)) {
+                    // 将连接点添加到当前节点的支配边界集合中
+                    dom_frontier_[runner].insert(bb);
+                    runner = get_idom(runner);
+                }
+            }
+        }
+    }
 
 }
 
@@ -133,7 +182,15 @@ void Dominators::create_dominance_frontier(Function *f) {
  */
 void Dominators::create_dom_tree_succ(Function *f) {
     // TODO 分析得到 f 中各个基本块的支配树后继
-    throw "Unimplemented create_dom_tree_succ";
+    //throw "Unimplemented create_dom_tree_succ";
+     // 遍历所有基本块，基于idom关系构建支配树的后继关系
+    for (auto &bb1 : f->get_basic_blocks()) {
+        auto bb = &bb1;
+        BasicBlock *dom = get_idom(bb);
+        if (dom != nullptr&&dom!=bb) {
+            dom_tree_succ_blocks_[dom].insert(bb);
+        }
+    }
 }
 
 /**
@@ -154,7 +211,10 @@ void Dominators::create_dom_tree_succ(Function *f) {
 void Dominators::create_dom_dfs_order(Function *f) {
     // 分析得到 f 中各个基本块的支配树上的dfs序L,R
     unsigned int order = 0;
+    std::set<BasicBlock *> visited;  // 用于记录已访问的基本块
     std::function<void(BasicBlock *)> dfs = [&](BasicBlock *bb) {
+        if (visited.count(bb)) return;  // 如果已经访问过，跳过
+        visited.insert(bb);  // 标记为已访问
         dom_tree_L_[bb] = ++ order;
         dom_dfs_order_.push_back(bb);
         for (auto &succ : dom_tree_succ_blocks_[bb]) {
