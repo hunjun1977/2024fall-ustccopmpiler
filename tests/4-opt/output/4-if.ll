@@ -11,45 +11,29 @@ declare void @neg_idx_except()
 
 define i32 @main() {
 label_entry:
-  %op0 = alloca i32
-  %op1 = alloca i32
-  %op2 = alloca i32
-  store i32 11, i32* %op0
-  store i32 22, i32* %op1
-  store i32 33, i32* %op2
-  %op3 = load i32, i32* %op0
-  %op4 = load i32, i32* %op1
-  %op5 = icmp sgt i32 %op3, %op4
-  br i1 %op5, label %label_turnBB1, label %label_falseBB1
+  %op0 = icmp sgt i32 11, 22
+  br i1 %op0, label %label_turnBB1, label %label_falseBB1
 label_turnBB1:                                                ; preds = %label_entry
-  %op6 = load i32, i32* %op0
-  %op7 = load i32, i32* %op2
-  %op8 = icmp sgt i32 %op6, %op7
-  br i1 %op8, label %label_turnBB3, label %label_falseBB3
+  %op1 = icmp sgt i32 11, 33
+  br i1 %op1, label %label_turnBB3, label %label_falseBB3
 label_falseBB1:                                                ; preds = %label_entry
-  %op9 = load i32, i32* %op2
-  %op10 = load i32, i32* %op1
-  %op11 = icmp slt i32 %op9, %op10
-  br i1 %op11, label %label_turnBB2, label %label_falseBB2
+  %op2 = icmp slt i32 33, 22
+  br i1 %op2, label %label_turnBB2, label %label_falseBB2
 label_nextBB1:                                                ; preds = %label_nextBB2, %label_nextBB3
   ret i32 0
 label_turnBB2:                                                ; preds = %label_falseBB1
-  %op12 = load i32, i32* %op1
-  call void @output(i32 %op12)
+  call void @output(i32 22)
   br label %label_nextBB2
 label_falseBB2:                                                ; preds = %label_falseBB1
-  %op13 = load i32, i32* %op2
-  call void @output(i32 %op13)
+  call void @output(i32 33)
   br label %label_nextBB2
 label_nextBB2:                                                ; preds = %label_falseBB2, %label_turnBB2
   br label %label_nextBB1
 label_turnBB3:                                                ; preds = %label_turnBB1
-  %op14 = load i32, i32* %op0
-  call void @output(i32 %op14)
+  call void @output(i32 11)
   br label %label_nextBB3
 label_falseBB3:                                                ; preds = %label_turnBB1
-  %op15 = load i32, i32* %op2
-  call void @output(i32 %op15)
+  call void @output(i32 33)
   br label %label_nextBB3
 label_nextBB3:                                                ; preds = %label_falseBB3, %label_turnBB3
   br label %label_nextBB1

@@ -93,135 +93,118 @@ returnToZeroSteps:
 	st.d $ra, $sp, -8
 	st.d $fp, $sp, -16
 	addi.d $fp, $sp, 0
-	addi.d $sp, $sp, -96
+	addi.d $sp, $sp, -48
 .returnToZeroSteps_label_entry:
-# %op0 = alloca i32
-	addi.d $t0, $fp, -28
-	st.d $t0, $fp, -24
-# %op1 = alloca i32
-	addi.d $t0, $fp, -40
-	st.d $t0, $fp, -36
-# store i32 0, i32* %op0
-	addi.w $t1, $zero, 0
-	ld.d $t0, $fp, -24
-	st.w $t1, $t0, 0
-# store i32 0, i32* %op1
-	addi.w $t1, $zero, 0
-	ld.d $t0, $fp, -36
-	st.w $t1, $t0, 0
-# br label %label2
-	b .returnToZeroSteps_label2
-.returnToZeroSteps_label2:
-# %op3 = load i32, i32* %op1
-	ld.d $t0, $fp, -36
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -44
-# %op4 = icmp slt i32 %op3, 20
-	ld.w $t1, $fp, -44
+# br label %label0
+	addi.w $a0, $zero, 0
+	st.w $a0, $fp, -20
+	addi.w $a0, $zero, 0
+	st.w $a0, $fp, -24
+	b .returnToZeroSteps_label0
+.returnToZeroSteps_label0:
+# %op1 = phi i32 [ 0, %label_entry ], [ %op11, %label_nextBB3 ]
+# %op2 = phi i32 [ 0, %label_entry ], [ %op10, %label_nextBB3 ]
+# %op3 = icmp slt i32 %op1, 20
+	ld.w $t1, $fp, -20
 	addi.w $t2, $zero, 20
 	slt $t0, $t1, $t2
-	st.b $t0, $fp, -45
-# br i1 %op4, label %label5, label %label8
-	ld.b $t0, $fp, -45
-	bnez $t0, .returnToZeroSteps_label5
-	b .returnToZeroSteps_label8
-.returnToZeroSteps_label5:
-# %op6 = call i32 @randBin()
+	st.b $t0, $fp, -25
+# br i1 %op3, label %label4, label %label7
+	ld.b $t0, $fp, -25
+	bnez $t0, .returnToZeroSteps_label4
+	b .returnToZeroSteps_label7
+.returnToZeroSteps_label4:
+# %op5 = call i32 @randBin()
 	bl randBin
-	st.w $a0, $fp, -49
-# %op7 = icmp ne i32 %op6, 0
-	ld.w $t1, $fp, -49
+	st.w $a0, $fp, -29
+# %op6 = icmp ne i32 %op5, 0
+	ld.w $t1, $fp, -29
 	addi.w $t2, $zero, 0
 	xor $t0, $t1, $t2
 	sltu $t0, $zero, $t0
-	st.b $t0, $fp, -50
-# br i1 %op7, label %label_turnBB2, label %label_falseBB2
-	ld.b $t0, $fp, -50
+	st.b $t0, $fp, -30
+# br i1 %op6, label %label_turnBB2, label %label_falseBB2
+	ld.b $t0, $fp, -30
 	bnez $t0, .returnToZeroSteps_label_turnBB2
 	b .returnToZeroSteps_label_falseBB2
-.returnToZeroSteps_label8:
+.returnToZeroSteps_label7:
 # ret i32 20
 	addi.w $a0, $zero, 20
-	addi.d $sp, $sp, 96
+	addi.d $sp, $sp, 48
 	ld.d $ra, $sp, -8
 	ld.d $fp, $sp, -16
 	jr $ra
 .returnToZeroSteps_label_turnBB2:
-# %op9 = load i32, i32* %op0
-	ld.d $t0, $fp, -24
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -54
-# %op10 = add i32 %op9, 1
-	ld.w $t0, $fp, -54
+# %op8 = add i32 %op2, 1
+	ld.w $t0, $fp, -24
 	addi.w $t1, $zero, 1
 	add.w $t2, $t0, $t1
-	st.w $t2, $fp, -58
-# store i32 %op10, i32* %op0
-	ld.w $t1, $fp, -58
-	ld.d $t0, $fp, -24
-	st.w $t1, $t0, 0
+	st.w $t2, $fp, -34
 # br label %label_nextBB2
+	ld.w $a0, $fp, -34
+	st.w $a0, $fp, -42
 	b .returnToZeroSteps_label_nextBB2
 .returnToZeroSteps_label_falseBB2:
-# %op11 = load i32, i32* %op0
-	ld.d $t0, $fp, -24
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -62
-# %op12 = sub i32 %op11, 1
-	ld.w $t0, $fp, -62
+# %op9 = sub i32 %op2, 1
+	ld.w $t0, $fp, -24
 	addi.w $t1, $zero, 1
 	sub.w $t2, $t0, $t1
-	st.w $t2, $fp, -66
-# store i32 %op12, i32* %op0
-	ld.w $t1, $fp, -66
-	ld.d $t0, $fp, -24
-	st.w $t1, $t0, 0
+	st.w $t2, $fp, -38
 # br label %label_nextBB2
+	ld.w $a0, $fp, -38
+	st.w $a0, $fp, -42
 	b .returnToZeroSteps_label_nextBB2
 .returnToZeroSteps_label_nextBB2:
-# %op13 = load i32, i32* %op1
-	ld.d $t0, $fp, -36
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -70
-# %op14 = add i32 %op13, 1
-	ld.w $t0, $fp, -70
+# %op10 = phi i32 [ %op8, %label_turnBB2 ], [ %op9, %label_falseBB2 ]
+# %op11 = add i32 %op1, 1
+	ld.w $t0, $fp, -20
 	addi.w $t1, $zero, 1
 	add.w $t2, $t0, $t1
-	st.w $t2, $fp, -74
-# store i32 %op14, i32* %op1
-	ld.w $t1, $fp, -74
-	ld.d $t0, $fp, -36
-	st.w $t1, $t0, 0
-# %op15 = load i32, i32* %op0
-	ld.d $t0, $fp, -24
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -78
-# %op16 = icmp eq i32 %op15, 0
-	ld.w $t1, $fp, -78
+	st.w $t2, $fp, -46
+# %op12 = icmp eq i32 %op10, 0
+	ld.w $t1, $fp, -42
 	addi.w $t2, $zero, 0
 	xor $t0, $t1, $t2
 	sltu $t0, $zero, $t0
 	xori $t0, $t0, 1
-	st.b $t0, $fp, -79
-# br i1 %op16, label %label_turnBB3, label %label_nextBB3
-	ld.b $t0, $fp, -79
+	st.b $t0, $fp, -47
+# br i1 %op12, label %label_turnBB3, label %label_nextBB3
+	ld.b $t0, $fp, -47
 	bnez $t0, .returnToZeroSteps_label_turnBB3
 	b .returnToZeroSteps_label_nextBB3
 .returnToZeroSteps_label_turnBB3:
-# %op17 = load i32, i32* %op1
-	ld.d $t0, $fp, -36
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -83
-# ret i32 %op17
-	ld.w $a0, $fp, -83
-	addi.d $sp, $sp, 96
+# ret i32 %op11
+	ld.w $a0, $fp, -46
+	addi.d $sp, $sp, 48
 	ld.d $ra, $sp, -8
 	ld.d $fp, $sp, -16
 	jr $ra
 .returnToZeroSteps_label_nextBB3:
-# br label %label2
-	b .returnToZeroSteps_label2
-	addi.d $sp, $sp, 96
+# br label %label0
+	ld.w $a0, $fp, -46
+	st.w $a0, $fp, -20
+	ld.w $a0, $fp, -42
+	st.w $a0, $fp, -24
+	b .returnToZeroSteps_label0
+	addi.w $t0, $zero, 0
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -20
+	ld.w $t0, $fp, -46
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -20
+	addi.w $t0, $zero, 0
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -24
+	ld.w $t0, $fp, -42
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -24
+	ld.w $t0, $fp, -34
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -42
+	ld.w $t0, $fp, -38
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -42
+	addi.d $sp, $sp, 48
 	ld.d $ra, $sp, -8
 	ld.d $fp, $sp, -16
 	jr $ra
@@ -231,66 +214,58 @@ main:
 	st.d $ra, $sp, -8
 	st.d $fp, $sp, -16
 	addi.d $fp, $sp, 0
-	addi.d $sp, $sp, -48
+	addi.d $sp, $sp, -32
 .main_label_entry:
-# %op0 = alloca i32
-	addi.d $t0, $fp, -28
-	st.d $t0, $fp, -24
-# store i32 0, i32* %op0
-	addi.w $t1, $zero, 0
-	ld.d $t0, $fp, -24
-	st.w $t1, $t0, 0
 # store i32 3407, i32* @seed
 	lu12i.w $t1, 0
 	ori $t1, $t1, 3407
 	la.local $t0, seed
 	st.w $t1, $t0, 0
-# br label %label1
-	b .main_label1
-.main_label1:
-# %op2 = load i32, i32* %op0
-	ld.d $t0, $fp, -24
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -32
-# %op3 = icmp slt i32 %op2, 20
-	ld.w $t1, $fp, -32
+# br label %label0
+	addi.w $a0, $zero, 0
+	st.w $a0, $fp, -20
+	b .main_label0
+.main_label0:
+# %op1 = phi i32 [ 0, %label_entry ], [ %op5, %label3 ]
+# %op2 = icmp slt i32 %op1, 20
+	ld.w $t1, $fp, -20
 	addi.w $t2, $zero, 20
 	slt $t0, $t1, $t2
-	st.b $t0, $fp, -33
-# br i1 %op3, label %label4, label %label8
-	ld.b $t0, $fp, -33
-	bnez $t0, .main_label4
-	b .main_label8
-.main_label4:
-# %op5 = call i32 @returnToZeroSteps()
+	st.b $t0, $fp, -21
+# br i1 %op2, label %label3, label %label6
+	ld.b $t0, $fp, -21
+	bnez $t0, .main_label3
+	b .main_label6
+.main_label3:
+# %op4 = call i32 @returnToZeroSteps()
 	bl returnToZeroSteps
-	st.w $a0, $fp, -37
-# call void @output(i32 %op5)
-	ld.w $a0, $fp, -37
+	st.w $a0, $fp, -25
+# call void @output(i32 %op4)
+	ld.w $a0, $fp, -25
 	bl output
-# %op6 = load i32, i32* %op0
-	ld.d $t0, $fp, -24
-	ld.w $t1, $t0, 0
-	st.w $t1, $fp, -41
-# %op7 = add i32 %op6, 1
-	ld.w $t0, $fp, -41
+# %op5 = add i32 %op1, 1
+	ld.w $t0, $fp, -20
 	addi.w $t1, $zero, 1
 	add.w $t2, $t0, $t1
-	st.w $t2, $fp, -45
-# store i32 %op7, i32* %op0
-	ld.w $t1, $fp, -45
-	ld.d $t0, $fp, -24
-	st.w $t1, $t0, 0
-# br label %label1
-	b .main_label1
-.main_label8:
+	st.w $t2, $fp, -29
+# br label %label0
+	ld.w $a0, $fp, -29
+	st.w $a0, $fp, -20
+	b .main_label0
+.main_label6:
 # ret i32 0
 	addi.w $a0, $zero, 0
-	addi.d $sp, $sp, 48
+	addi.d $sp, $sp, 32
 	ld.d $ra, $sp, -8
 	ld.d $fp, $sp, -16
 	jr $ra
-	addi.d $sp, $sp, 48
+	addi.w $t0, $zero, 0
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -20
+	ld.w $t0, $fp, -29
+	add.w $t2,$zero,$t1
+	st.w $t2, $fp, -20
+	addi.d $sp, $sp, 32
 	ld.d $ra, $sp, -8
 	ld.d $fp, $sp, -16
 	jr $ra

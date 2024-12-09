@@ -106,18 +106,19 @@ void Mem2Reg::generate_phi() {
 
 void Mem2Reg::rename(BasicBlock *bb) {
     // bb->print();
-    if (phi_map.size() == 0) {
-        return;
-    }
+    // if (phi_map.size() == 0) {
+    //     return;
+    // }
     std::vector<Instruction *> wait_delete;
     // TODO
     // 步骤一：将 phi 指令作为 lval 的最新定值，lval 即是为局部变量 alloca
-    // 出的地址空间 步骤二：用 lval 最新的定值替代对应的load指令 步骤三：将
-    // store 指令的 rval，也即被存入内存的值，作为 lval 的最新定值 步骤四：为
-    // lval 对应的 phi 指令参数补充完整 步骤五：对 bb
-    // 在支配树上的所有后继节点，递归执行 re_name 操作 步骤六：pop出 lval
-    // 的最新定值 步骤七：清除冗余的指令
-    // 步骤一：将 phi 指令作为 lval 的最新定值
+    // 出的地址空间 
+    //步骤二：用 lval 最新的定值替代对应的load指令 
+    //步骤三：将store 指令的 rval，也即被存入内存的值，作为 lval 的最新定值 
+    //步骤四：为lval 对应的 phi 指令参数补充完整 
+    //步骤五：对 bb 在支配树上的所有后继节点，递归执行 re_name 操作 
+    //步骤六：pop出 lval的最新定值 
+    //步骤七：清除冗余的指令
     for (auto &instr : bb->get_instructions()) {
         if (instr.is_phi()) {
             auto *phi = dynamic_cast<PhiInst *>(&instr);
@@ -125,21 +126,50 @@ void Mem2Reg::rename(BasicBlock *bb) {
             var_val_stack[l_val].push_back(
                 phi); // 将 phi 指令加入到 lval 的定值栈中
         }
-        if (instr.is_load()) {
-            auto *load_instr = static_cast<LoadInst *>(&instr);
-            auto l_val = load_instr->get_lval();
-            auto r_val = var_val_stack.at(l_val).back(); // 获取最新的值
-            load_instr->replace_all_use_with(
-                r_val); // 用最新值替换 load 指令的 r_val
-            wait_delete.push_back(&instr); // 标记 load 指令待删除
-        }
+    }
+
+    for (auto &instr : bb->get_instructions()) {
         if (instr.is_store()) {
             auto *store_instr = dynamic_cast<StoreInst *>(&instr);
             auto l_val = store_instr->get_lval();
             auto r_val = store_instr->get_rval();
-            var_val_stack[l_val].push_back(r_val); // 更新 lval 的值
-            wait_delete.push_back(&instr); // 标记 store 指令待删除
+            if (is_valid_ptr(l_val)){
+                var_val_stack[l_val].push_back(r_val); // 更新 lval 的值
+                wait_delete.push_back(&instr); // 标记 store 指令待删除
+            }
         }
+        if (instr.is_load()) {
+            auto *load_instr = static_cast<LoadInst *>(&instr);
+            auto l_val = load_instr->get_lval();
+            if (is_valid_ptr(l_val)){
+            auto r_val = var_val_stack.at(l_val).back(); // 获取最新的值
+            load_instr->replace_all_use_with(
+                r_val); // 用最新值替换 load 指令的 r_val
+            wait_delete.push_back(&instr); // 标记 load 指令待删除
+        } 
+    }
+    }
+
+    // for (auto &instr : bb->get_instructions()) {
+    //     if (instr.is_load()) {
+    //         auto *load_instr = static_cast<LoadInst *>(&instr);
+    //         auto l_val = load_instr->get_lval();
+    //         if (is_valid_ptr(l_val)){
+    //         auto r_val = var_val_stack.at(l_val).back(); // 获取最新的值
+    //         load_instr->replace_all_use_with(
+    //             r_val); // 用最新值替换 load 指令的 r_val
+    //         wait_delete.push_back(&instr); // 标记 load 指令待删除
+    //     }    
+    // }
+    // for (auto &instr : bb->get_instructions()) {
+    //     if (instr.is_store()) {
+    //         auto *store_instr = dynamic_cast<StoreInst *>(&instr);
+    //         auto l_val = store_instr->get_lval();
+    //         auto r_val = store_instr->get_rval();
+    //         var_val_stack[l_val].push_back(r_val); // 更新 lval 的值
+    //         wait_delete.push_back(&instr); // 标记 store 指令待删除
+    //     }
+    // }
         // 步骤四：为 lval 对应的 phi 指令参数补充完整
         for (auto *succ : bb->get_succ_basic_blocks()) {
             for (auto &instr : succ->get_instructions()) {
@@ -174,5 +204,4 @@ void Mem2Reg::rename(BasicBlock *bb) {
         for (auto *instr : wait_delete) {
             bb->erase_instr(instr); // 删除冗余的指令
         }
-    }
 }
