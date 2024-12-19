@@ -24,13 +24,12 @@ label_end1:                                                ; preds = %label_entr
 define i32 @main() {
 label_entry:
   %op0 = alloca [10 x i32]
-  br label %label1
-label1:                                                ; preds = %label_entry, %label4
-  %op2 = phi i32 [ 0, %label_entry ], [ %op8, %label4 ]
+  br label %label21
+label1:                                                ; preds = %label4, %label21, %label21
+  %op2 = phi i32 [ %op8, %label4 ], [ 0, %label21 ]
   %op3 = icmp slt i32 %op2, 10
   br i1 %op3, label %label4, label %label9
 label4:                                                ; preds = %label1
-  %op5 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0
   %op6 = mul i32 %op2, 2
   %op7 = call i32 @store(i32* %op5, i32 %op2, i32 %op6)
   %op8 = add i32 %op2, 1
@@ -57,4 +56,7 @@ label_end2:                                                ; preds = %label14, %
   %op19 = add i32 %op11, %op18
   %op20 = add i32 %op12, 1
   br label %label10
+label21:                                                ; preds = %label_entry
+  %op5 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0
+  br label %label1
 }

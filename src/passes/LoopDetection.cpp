@@ -50,8 +50,14 @@ void LoopDetection::discover_loop_and_sub_loops(BasicBlock *bb, BBset &latches,
              * 1. 使用loop->add_block将bb加入当前循环
              * 2. 更新bb_to_loop_映射
              * 3. 将bb的所有前驱加入工作表
+             * 
              */
-        throw std::runtime_error("Lab4: 你有一个TODO需要完成！");
+            loop->add_block(bb);
+            bb_to_loop_[bb] = loop;
+            for (auto &pred : bb->get_pre_basic_blocks()) {
+                work_list.push_back(pred);
+            }
+            //throw std::runtime_error("Lab4: 你有一个TODO需要完成！");
         
         }
         // TODO-2: 处理已属于其他循环的节点
@@ -66,10 +72,31 @@ void LoopDetection::discover_loop_and_sub_loops(BasicBlock *bb, BBset &latches,
              * 5. 将子循环的所有基本快加入到父循环中
              * 6. 将子循环header的前驱加入工作表
              */
+             // 1. 获取当前基本块所属的子循环
+            auto sub_loop = bb_to_loop_[bb];
 
-        throw std::runtime_error("Lab4: 你有一个TODO需要完成！");
+            // 2. 找到 sub_loop 的最顶层父循环
+            auto parent_loop = sub_loop->get_parent();
+
+            // 3. 如果父循环不是当前循环，则需要继续处理
+            if (parent_loop==nullptr||parent_loop != loop) {
+                // 4. 建立循环嵌套关系
+                //    - 将当前循环设置为子循环的父循环
+                loop->add_sub_loop(sub_loop);
+                sub_loop->set_parent(loop);
+
+                // 5. 将子循环的所有基本块加入到父循环中
+                for (auto *sub_bb : sub_loop->get_blocks()) {
+                    loop->add_block(sub_bb);
+                }
+
+                // 6. 将子循环的 header 前驱基本块加入工作表
+                for (auto *pred : sub_loop->get_header()->get_pre_basic_blocks()) {
+                    work_list.push_back(pred);}
+        //throw std::runtime_error("Lab4: 你有一个TODO需要完成！");
 
         }
+    }
     }
 }
 

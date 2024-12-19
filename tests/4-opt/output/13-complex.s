@@ -690,12 +690,10 @@ main:
 	addi.w $t1, $zero, 6
 	ld.d $t0, $fp, -106
 	st.w $t1, $t0, 0
-# br label %label20
-	addi.w $a0, $zero, 0
-	st.w $a0, $fp, -110
-	b .main_label20
+# br label %label32
+	b .main_label32
 .main_label20:
-# %op21 = phi i32 [ 0, %label_end16 ], [ %op31, %label_end17 ]
+# %op21 = phi i32 [ %op31, %label_end17 ], [ 0, %label32 ]
 # %op22 = icmp slt i32 %op21, 66
 	ld.w $t1, $fp, -110
 	addi.w $t2, $zero, 66
@@ -753,28 +751,35 @@ main:
 	mul.d $t1, $t1, $t2
 	add.d $t0, $t0, $t1
 	st.d $t0, $fp, -132
-# %op30 = sub i32 0, 1
-	addi.w $t0, $zero, 0
-	addi.w $t1, $zero, 1
-	sub.w $t2, $t0, $t1
-	st.w $t2, $fp, -136
 # store i32 %op30, i32* %op29
-	ld.w $t1, $fp, -136
+	ld.w $t1, $fp, -140
 	ld.d $t0, $fp, -132
 	st.w $t1, $t0, 0
 # %op31 = add i32 %op21, 1
 	ld.w $t0, $fp, -110
 	addi.w $t1, $zero, 1
 	add.w $t2, $t0, $t1
-	st.w $t2, $fp, -140
+	st.w $t2, $fp, -136
 # br label %label20
-	ld.w $a0, $fp, -140
+	ld.w $a0, $fp, -136
 	st.w $a0, $fp, -110
 	b .main_label20
+.main_label32:
+# %op30 = sub i32 0, 1
 	addi.w $t0, $zero, 0
+	addi.w $t1, $zero, 1
+	sub.w $t2, $t0, $t1
+	st.w $t2, $fp, -140
+# br label %label20
+	addi.w $a0, $zero, 0
+	st.w $a0, $fp, -110
+	addi.w $a0, $zero, 0
+	st.w $a0, $fp, -110
+	b .main_label20
+	ld.w $t0, $fp, -136
 	add.w $t2,$zero,$t1
 	st.w $t2, $fp, -110
-	ld.w $t0, $fp, -140
+	addi.w $t0, $zero, 0
 	add.w $t2,$zero,$t1
 	st.w $t2, $fp, -110
 	addi.d $sp, $sp, 144

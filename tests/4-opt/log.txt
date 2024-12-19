@@ -1,789 +1,795 @@
-==========./testcases/functional-cases/0-io.cminus==========
-i32
-calldone
-% = call i32 @input()
-i32
-calldone
-returnstmt
-i32
-calldone
-% = call i32 @input()
-i32
-calldone
-returnstmt
-1234								1234
-0								0
-==========./testcases/functional-cases/1-return.cminus==========
-i32
-111
-i32
-calldone
-returnstmt
-i32
-111
-i32
-calldone
-returnstmt
-111								111
-111								111
-==========./testcases/functional-cases/2-calculate.cminus==========
-returnstmt
-% = load i32, i32* %
-% = mul i32 %, %
-i32
-returnstmt
-% = load i32, i32* %
-% = mul i32 %, %
-i32
-123								123
-==========./testcases/functional-cases/3-output.cminus==========
-i32
-11
-i32
-calldone
-i32
-22222
-i32
-calldone
-returnstmt
-i32
-11
-i32
-calldone
-i32
-22222
-i32
-calldone
-returnstmt
-11								11
-22222								22222
-0								0
-==========./testcases/functional-cases/4-if.cminus==========
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-returnstmt
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-returnstmt
-33								33
-0								0
-==========./testcases/functional-cases/5-while.cminus==========
-i32
-% = load i32, i32* %
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-returnstmt
-i32
-% = load i32, i32* %
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-returnstmt
-0								0
-1								1
-2								2
-3								3
-4								4
-5								5
-6								6
-7								7
-8								8
-9								9
-0								0
-==========./testcases/functional-cases/6-array.cminus==========
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-returnstmt
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-i32
-% = load i32, i32* %
-i32
-calldone
-returnstmt
-11								11
-22								22
-33								33
-0								0
-==========./testcases/functional-cases/7-function.cminus==========
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-a
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-b
-store i32 %, i32* %
-returnstmt
-returnstmt
-i32
-i32
-% = load i32, i32* %
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @min(i32 %, i32 %)
-i32
-calldone
-i32
-i32
-% = load i32, i32* %
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @min(i32 %, i32 %)
-i32
-calldone
-i32
-i32
-% = load i32, i32* %
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @min(i32 %, i32 %)
-i32
-calldone
-returnstmt
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-a
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-b
-store i32 %, i32* %
-returnstmt
-returnstmt
-i32
-i32
-% = load i32, i32* %
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @min(i32 %, i32 %)
-i32
-calldone
-i32
-i32
-% = load i32, i32* %
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @min(i32 %, i32 %)
-i32
-calldone
-i32
-i32
-% = load i32, i32* %
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @min(i32 %, i32 %)
-i32
-calldone
-returnstmt
-11								11
-22								22
-11								11
-0								0
-==========./testcases/functional-cases/8-store.cminus==========
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-index
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-value
-store i32 %, i32* %
-returnstmt
-i32*
-% = alloca [10 x i32]
-[10 x i32]*
-[10 x i32]*
-i32
-% = load i32, i32* %
-i32
-i32
-% = mul i32 %, 2
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-% = load i32, i32* %
-% = load i32, i32* %
-i32
-% = load i32, i32* %
-1
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-returnstmt
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-index
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-value
-store i32 %, i32* %
-returnstmt
-i32*
-% = alloca [10 x i32]
-[10 x i32]*
-[10 x i32]*
-i32
-% = load i32, i32* %
-i32
-i32
-% = mul i32 %, 2
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-% = load i32, i32* %
-% = load i32, i32* %
-i32
-% = load i32, i32* %
-1
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-returnstmt
-90								90
-0								0
-==========./testcases/functional-cases/9-fibonacci.cminus==========
-i32*
-% = alloca i32
-i32 %
-i32
-n
-store i32 %, i32* %
-returnstmt
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
-i32
-calldone
-i32
-% = load i32, i32* %
-2
-i32
-% = sub i32 %, 2
-i32
-calldone
-% = call i32 @fibonacci(i32 %)
-% = call i32 @fibonacci(i32 %)
-i32
-returnstmt
-returnstmt
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @fibonacci(i32 %)
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-returnstmt
-i32*
-% = alloca i32
-i32 %
-i32
-n
-store i32 %, i32* %
-returnstmt
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
-i32
-calldone
-i32
-% = load i32, i32* %
-2
-i32
-% = sub i32 %, 2
-i32
-calldone
-% = call i32 @fibonacci(i32 %)
-% = call i32 @fibonacci(i32 %)
-i32
-returnstmt
-returnstmt
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = call i32 @fibonacci(i32 %)
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-returnstmt
-0								0
-1								1
-1								1
-2								2
-3								3
-5								5
-8								8
-13								13
-21								21
-34								34
-0								0
-==========./testcases/functional-cases/10-float.cminus==========
-float
-% = fadd float %, %
-float
-calldone
-returnstmt
-float
-% = fadd float %, %
-float
-calldone
-returnstmt
-2.850000							2.850000
-0								0
-==========./testcases/functional-cases/11-floatcall.cminus==========
-float*
-float*
-% = alloca float
-float %
-float
-x
-store float %, float* %
-% = alloca float
-float %
-float
-y
-store float %, float* %
-returnstmt
-float
-float
-% = load float, float* %
-float
-float
-% = load float, float* %
-float
-calldone
-% = call float @mod(float %, float %)
-float
-calldone
-returnstmt
-float*
-float*
-% = alloca float
-float %
-float
-x
-store float %, float* %
-% = alloca float
-float %
-float
-y
-store float %, float* %
-returnstmt
-float
-float
-% = load float, float* %
-float
-float
-% = load float, float* %
-float
-calldone
-% = call float @mod(float %, float %)
-float
-calldone
-returnstmt
-0.200000							0.200000
-0								0
-==========./testcases/functional-cases/12-global.cminus==========
-% = mul i32 %, 1103515245
-12345
-i32
-returnstmt
-calldone
-returnstmt
-returnstmt
-calldone
+==========./testcases/loop/loop-1.cminus==========
 % = load i32, i32* %
 1
 i32
 % = load i32, i32* %
 1
 i32
-% = load i32, i32* %
-1
 i32
-returnstmt
-returnstmt
+% = load i32, i32* %
 i32
 calldone
-% = call i32 @returnToZeroSteps()
-i32
-calldone
-% = load i32, i32* %
-1
-i32
 returnstmt
-% = mul i32 %, 1103515245
-12345
-i32
-returnstmt
-calldone
-returnstmt
-returnstmt
-calldone
 % = load i32, i32* %
 1
 i32
 % = load i32, i32* %
 1
-i32
-% = load i32, i32* %
-1
-i32
-returnstmt
-returnstmt
-i32
-calldone
-% = call i32 @returnToZeroSteps()
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-returnstmt
-4								4
-2								2
-2								2
-4								4
-8								8
-2								2
-2								2
-2								2
-2								2
-2								2
-6								6
-2								2
-10								10
-8								8
-4								4
-2								2
-20								20
-2								2
-2								2
-8								8
-0								0
-==========./testcases/functional-cases/13-complex.cminus==========
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-a
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-b
-store i32 %, i32* %
-returnstmt
-returnstmt
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-n
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-size
-store i32 %, i32* %
-returnstmt
-returnstmt
-% = mul i32 %, 11
-% = load i32, i32* %
-i32
-returnstmt
-% = mul i32 %, 11
-% = load i32, i32* %
-i32
-% = load i32, i32* %
-1
-i32
-i32
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
 i32
 i32
 % = load i32, i32* %
 i32
 calldone
-% = call i32 @knapsack(i32 %, i32 %)
-i32
-i32
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
-i32
-i32
-% = load i32, i32* %
-1
-i32
-% = load i32, i32* %
-% = load i32, i32* %
-i32
-% = sub i32 %, %
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-% = call i32 @knapsack(i32 %, i32 %)
-% = load i32, i32* %
-i32
-% = add i32 %, %
-i32
-calldone
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = mul i32 %, 11
-% = load i32, i32* %
-i32
 returnstmt
+Loop Detection Result:
+Loop header: label6
+Loop blocks: label6 label10 
+Sub loops: 
+Loop header: label0
+Loop blocks: label0 label31 label6 label10 label4 
+Sub loops: label6 
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
 0
 1
-i32
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+==========./testcases/loop/loop-2.cminus==========
 % = load i32, i32* %
 1
 i32
-i32
-i32
-% = load i32, i32* @n
-i32
-i32
-% = load i32, i32* @m
-i32
-calldone
-% = call i32 @knapsack(i32 %, i32 %)
-i32
-calldone
-returnstmt
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-a
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-b
-store i32 %, i32* %
-returnstmt
-returnstmt
-i32*
-i32*
-% = alloca i32
-i32 %
-i32
-n
-store i32 %, i32* %
-% = alloca i32
-i32 %
-i32
-size
-store i32 %, i32* %
-returnstmt
-returnstmt
-% = mul i32 %, 11
-% = load i32, i32* %
-i32
-returnstmt
-% = mul i32 %, 11
-% = load i32, i32* %
-i32
 % = load i32, i32* %
 1
-i32
-i32
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
 i32
 i32
 % = load i32, i32* %
 i32
 calldone
-% = call i32 @knapsack(i32 %, i32 %)
-i32
-i32
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
-i32
-i32
-% = load i32, i32* %
-1
-i32
-% = load i32, i32* %
-% = load i32, i32* %
-i32
-% = sub i32 %, %
-i32
-calldone
-% = load i32, i32* %
-1
-i32
-% = call i32 @knapsack(i32 %, i32 %)
-% = load i32, i32* %
-i32
-% = add i32 %, %
-i32
-calldone
-i32
-% = load i32, i32* %
-1
-i32
-% = sub i32 %, 1
-i32
-i32
-% = load i32, i32* %
-i32
-calldone
-% = mul i32 %, 11
-% = load i32, i32* %
-i32
 returnstmt
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+i32
+% = load i32, i32* %
+i32
+calldone
+returnstmt
+Loop Detection Result:
+Loop header: label6
+Loop blocks: label6 label10 
+Sub loops: 
+Loop header: label0
+Loop blocks: label0 label31 label6 label10 label4 
+Sub loops: label6 
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
 0
 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+==========./testcases/loop/loop-3.cminus==========
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
 i32
 % = load i32, i32* %
 1
 i32
 i32
-i32
-% = load i32, i32* @n
-i32
-i32
-% = load i32, i32* @m
-i32
-calldone
-% = call i32 @knapsack(i32 %, i32 %)
+% = load i32, i32* %
 i32
 calldone
 returnstmt
-15								15
-0								0
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+i32
+% = load i32, i32* %
+i32
+calldone
+returnstmt
+Loop Detection Result:
+Loop header: label34
+Loop blocks: label34 label38 
+Sub loops: 
+Loop header: label27
+Loop blocks: label27 label59 label34 label38 label31 
+Sub loops: label34 
+Loop header: label20
+Loop blocks: label20 label32 label27 label59 label34 label38 label31 label24 
+Sub loops: label27 
+Loop header: label13
+Loop blocks: label13 label25 label20 label32 label27 label59 label34 label38 label31 label24 label17 
+Sub loops: label20 
+Loop header: label6
+Loop blocks: label6 label18 label13 label25 label20 label32 label27 label59 label34 label38 label31 label24 label17 label10 
+Sub loops: label13 
+Loop header: label0
+Loop blocks: label0 label11 label6 label18 label13 label25 label20 label32 label27 label59 label34 label38 label31 label24 label17 label10 label4 
+Sub loops: label6 
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+==========./testcases/loop/loop-4.cminus==========
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+i32
+% = load i32, i32* %
+i32
+calldone
+returnstmt
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+% = load i32, i32* %
+1
+i32
+i32
+% = load i32, i32* %
+i32
+calldone
+returnstmt
+Loop Detection Result:
+Loop header: label37
+Loop blocks: label37 label_nextBB1 label_turnBB1 label42 
+Sub loops: 
+Loop header: label29
+Loop blocks: label29 label44 label37 label_nextBB1 label_turnBB1 label42 label34 
+Sub loops: label37 
+Loop header: label21
+Loop blocks: label21 label35 label29 label44 label37 label_nextBB1 label_turnBB1 label42 label34 label26 
+Sub loops: label29 
+Loop header: label13
+Loop blocks: label13 label27 label21 label35 label29 label44 label37 label_nextBB1 label_turnBB1 label42 label34 label26 label18 
+Sub loops: label21 
+Loop header: label6
+Loop blocks: label6 label19 label13 label27 label21 label35 label29 label44 label37 label_nextBB1 label_turnBB1 label42 label34 label26 label18 label10 
+Sub loops: label13 
+Loop header: label0
+Loop blocks: label0 label11 label6 label19 label13 label27 label21 label35 label29 label44 label37 label_nextBB1 label_turnBB1 label42 label34 label26 label18 label10 label4 
+Sub loops: label6 
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+down
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20

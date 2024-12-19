@@ -200,7 +200,7 @@ void Mem2Reg::rename(BasicBlock *bb) {
             }
         }
 
-        // 步骤七：清除冗余的指令
+           // 步骤七：清除冗余的指令
         for (auto *instr : wait_delete) {
             bb->erase_instr(instr); // 删除冗余的指令
         }

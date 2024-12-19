@@ -200,9 +200,9 @@ label_error16:                                                ; preds = %label_e
 label_end16:                                                ; preds = %label_end15, %label_error16
   %op19 = getelementptr [5 x i32], [5 x i32]* @v, i32 0, i32 4
   store i32 6, i32* %op19
-  br label %label20
-label20:                                                ; preds = %label_end16, %label_end17
-  %op21 = phi i32 [ 0, %label_end16 ], [ %op31, %label_end17 ]
+  br label %label32
+label20:                                                ; preds = %label_end17, %label32, %label32
+  %op21 = phi i32 [ %op31, %label_end17 ], [ 0, %label32 ]
   %op22 = icmp slt i32 %op21, 66
   br i1 %op22, label %label23, label %label25
 label23:                                                ; preds = %label20
@@ -219,8 +219,10 @@ label_error17:                                                ; preds = %label23
   br label %label_end17
 label_end17:                                                ; preds = %label23, %label_error17
   %op29 = getelementptr [66 x i32], [66 x i32]* @dp, i32 0, i32 %op21
-  %op30 = sub i32 0, 1
   store i32 %op30, i32* %op29
   %op31 = add i32 %op21, 1
+  br label %label20
+label32:                                                ; preds = %label_end16
+  %op30 = sub i32 0, 1
   br label %label20
 }
